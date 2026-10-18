@@ -1,6 +1,6 @@
 # Arquitectura inicial
 
-Estado: PR-003 incorpora identidad y sesiones. Los módulos de aprendizaje se incorporarán cuando existan casos de uso comprobables.
+Estado: PR-003 incorporó identidad y sesiones; PR-004 añade preferencias y una recomendación por reglas. Los módulos curriculares se incorporarán cuando existan sus casos de uso.
 
 ```mermaid
 flowchart LR
@@ -13,7 +13,7 @@ flowchart LR
 
 ## Límites actuales
 
-`frontend/` sirve la página inicial y los formularios de identidad. `backend/` publica salud, registro, acceso, cierre de sesión y consulta de la cuenta. La identidad persiste mediante SQLAlchemy y una migración Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
+`frontend/` sirve la página inicial, formularios de identidad y cuestionario de preferencias. `backend/` publica salud, identidad y onboarding. Usuarios, sesiones y preferencias persisten mediante SQLAlchemy y migraciones Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
 
 ## Dirección de las dependencias
 
@@ -21,9 +21,9 @@ La interfaz llama contratos HTTP versionados. Los casos de uso futuros contendr�
 
 ## Modelo y contratos previstos
 
-Identidad: `User` y `AuthSession` ya están migrados. `UserProfile` se añadirá con onboarding. Contenido: `LearningPath`, `Module`, `Lesson` y `Exercise`. Evidencia: `ExerciseAttempt` y `LessonProgress`. Las tablas nuevas se decidirán cuando existan sus flujos. Los detalles de claves y restricciones están en [data-model.md](data-model.md).
+Identidad: `User`, `AuthSession` y `UserProfile` ya están migrados. Contenido: `LearningPath`, `Module`, `Lesson` y `Exercise`. Evidencia: `ExerciseAttempt` y `LessonProgress`. Las tablas nuevas se decidirán cuando existan sus flujos. Los detalles de claves y restricciones están en [data-model.md](data-model.md).
 
-Los contratos de salud e identidad usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). Los contratos de contenido y progreso se definirán con sus casos de uso. El contrato de ejecución local incluirá identificador de ejercicio, código, versión y modo; devolverá estado, salida, errores, duración y diagnósticos. Su implementación se decidirá en PR-007.
+Los contratos de salud, identidad y onboarding usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). Los contratos de contenido y progreso se definirán con sus casos de uso. El contrato de ejecución local incluirá identificador de ejercicio, código, versión y modo; devolverá estado, salida, errores, duración y diagnósticos. Su implementación se decidirá en PR-007.
 
 ## Seguridad y operación
 
@@ -31,4 +31,4 @@ El backend no ejecuta código del estudiante. Las contraseñas se guardan con Ar
 
 ## Pruebas
 
-PR-003 añade pruebas de integración que ejecutan la migración y recorren registro, acceso, consulta y cierre de sesión. Lint, tipos y build verifican el frontend; la revisión manual del flujo en navegador sigue siendo necesaria.
+PR-003 añadió pruebas de identidad. PR-004 comprueba reglas, migración, propiedad y actualización de perfiles, validación y eliminación en cascada. Lint, tipos y build verifican el frontend; la revisión manual del cuestionario en navegador sigue siendo necesaria.

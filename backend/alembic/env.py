@@ -1,10 +1,9 @@
 """Use the same database URL and models as the application."""
 
-from sqlalchemy import create_engine, pool
-
 from alembic import context
-from app.database import Base
+from app.database import Base, build_engine
 from app.identity import models  # noqa: F401 - registers tables in Base.metadata
+from app.onboarding import models as onboarding_models  # noqa: F401 - registers profile table
 from app.settings import Settings
 
 target_metadata = Base.metadata
@@ -22,7 +21,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    engine = create_engine(Settings.from_env().database_url, poolclass=pool.NullPool)
+    engine = build_engine(Settings.from_env().database_url)
     with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
         with context.begin_transaction():
