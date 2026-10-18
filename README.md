@@ -2,7 +2,7 @@
 
 **El conocimiento echa raíces cuando lo aplicas.**
 
-PyRaíz está en su primera etapa de desarrollo. Este repositorio contiene una base de Next.js y FastAPI; todavía no ofrece registro, lecciones ni ejecución de Python. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
+PyRaíz está en su primera etapa de desarrollo. Este repositorio contiene una base de Next.js, Tailwind CSS y FastAPI; todavía no ofrece registro, lecciones ni ejecución de Python. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
 
 ## Requisitos
 
@@ -48,6 +48,7 @@ uv run ruff format --check .
 ## Documentación
 
 - [Arquitectura inicial](docs/architecture.md)
+- [Sistema de diseño](docs/design-system.md)
 - [Alcance del MVP](docs/mvp-scope.md)
 - [Roadmap de PRs](docs/roadmap.md)
 - [Decisión arquitectónica inicial](docs/decisions/0001-modular-monolith.md)
