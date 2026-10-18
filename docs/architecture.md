@@ -1,6 +1,6 @@
 # Arquitectura inicial
 
-Estado: propuesta aplicada únicamente a la base del PR-001. Los módulos funcionales se incorporarán cuando existan casos de uso comprobables.
+Estado: PR-003 incorpora identidad y sesiones. Los módulos de aprendizaje se incorporarán cuando existan casos de uso comprobables.
 
 ```mermaid
 flowchart LR
@@ -8,12 +8,12 @@ flowchart LR
   F --> API[FastAPI /api/v1]
   F --> EX[Adaptador de ejecución futuro]
   EX --> PY[Pyodide en Web Worker futuro]
-  API --> DB[(PostgreSQL futuro)]
+  API --> DB[(SQLite local / PostgreSQL configurable)]
 ```
 
 ## Límites actuales
 
-`frontend/` sirve una página inicial. `backend/` publica una comprobación de salud. No hay persistencia, autenticación ni ejecución de código. El frontend aún no llama a la API.
+`frontend/` sirve la página inicial y los formularios de identidad. `backend/` publica salud, registro, acceso, cierre de sesión y consulta de la cuenta. La identidad persiste mediante SQLAlchemy y una migración Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
 
 ## Dirección de las dependencias
 
@@ -21,14 +21,14 @@ La interfaz llama contratos HTTP versionados. Los casos de uso futuros contendr�
 
 ## Modelo y contratos previstos
 
-Identidad: `User` y `UserProfile`. Contenido: `LearningPath`, `Module`, `Lesson` y `Exercise`. Evidencia: `ExerciseAttempt` y `LessonProgress`. Las claves, restricciones y política de eliminación se decidirán antes de la primera migración. PostgreSQL y Alembic se incorporarán en el PR que necesite persistencia.
+Identidad: `User` y `AuthSession` ya están migrados. `UserProfile` se añadirá con onboarding. Contenido: `LearningPath`, `Module`, `Lesson` y `Exercise`. Evidencia: `ExerciseAttempt` y `LessonProgress`. Las tablas nuevas se decidirán cuando existan sus flujos. Los detalles de claves y restricciones están en [data-model.md](data-model.md).
 
-El primer contrato HTTP real es `GET /api/v1/health`, que responde `{"status":"ok"}`. Los contratos de identidad, contenido y progreso se definirán con sus casos de uso. El contrato de ejecución local incluirá identificador de ejercicio, código, versión y modo; devolverá estado, salida, errores, duración y diagnósticos. Su implementación se decidirá en PR-007.
+Los contratos de salud e identidad usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). Los contratos de contenido y progreso se definirán con sus casos de uso. El contrato de ejecución local incluirá identificador de ejercicio, código, versión y modo; devolverá estado, salida, errores, duración y diagnósticos. Su implementación se decidirá en PR-007.
 
 ## Seguridad y operación
 
-El backend no ejecutará código del estudiante. CORS acepta únicamente los orígenes configurados. La comprobación de salud es pública y no revela secretos. El navegador no será fuente confiable para certificados de alta integridad. Antes de un evaluador remoto se requerirá un análisis específico de amenazas.
+El backend no ejecuta código del estudiante. Las contraseñas se guardan con Argon2id y los tokens de sesión se guardan solo como hashes. CORS y la comprobación de origen restringen solicitudes del navegador; la cookie es HttpOnly y SameSite Lax. Los límites y controles pendientes se documentan en [security.md](security.md). El navegador no será fuente confiable para certificados de alta integridad. Antes de un evaluador remoto se requerirá un análisis específico de amenazas.
 
 ## Pruebas
 
-PR-001 comprueba el endpoint público y el esquema OpenAPI, además de lint, tipos y build del frontend. Los PRs funcionales añadirán pruebas de reglas, integración y recorridos de usuario según sus riesgos reales.
+PR-003 añade pruebas de integración que ejecutan la migración y recorren registro, acceso, consulta y cierre de sesión. Lint, tipos y build verifican el frontend; la revisión manual del flujo en navegador sigue siendo necesaria.

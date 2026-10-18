@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Container } from "@/components/container";
 import { SectionHeading } from "@/components/section-heading";
 
@@ -61,6 +62,8 @@ export default function Home() {
             <a className={navLink} href="#metodo">Cómo aprenderás</a>
             <a className={navLink} href="#ruta">Ruta inicial</a>
             <a className={navLink} href="#proyectos">Proyectos</a>
+            <Link className={navLink} href="/ingresar">Ingresar</Link>
+            <Link className={navLink} href="/registro">Crear cuenta</Link>
           </nav>
         </Container>
       </header>
@@ -81,8 +84,8 @@ export default function Home() {
                 PyRaíz será un espacio gratuito para aprender Python desde cero, practicar con orientación y crear proyectos que resuelvan problemas reales.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a className={`${buttonBase} bg-[#17553e] text-white hover:bg-[#0f422f]`} href="#metodo">Descubre el método</a>
-                <a className={`${buttonBase} border-border bg-surface hover:bg-surface-muted`} href="#proyectos">Ver proyectos</a>
+                <Link className={`${buttonBase} bg-[#17553e] text-white hover:bg-[#0f422f]`} href="/registro">Crea tu cuenta</Link>
+                <a className={`${buttonBase} border-border bg-surface hover:bg-surface-muted`} href="#metodo">Descubre el método</a>
               </div>
               <p className="mt-5 text-sm text-muted">La plataforma de aprendizaje está en construcción.</p>
             </div>
