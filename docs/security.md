@@ -8,3 +8,5 @@
 - Las sesiones vencidas se purgan al crear otra sesión. En operación prolongada deberá añadirse una limpieza programada y supervisada.
 
 No se han implementado recuperación de contraseña, verificación de correo, eliminación de cuenta ni herramientas administrativas. La autenticación no equivale a autorización de contenido: cada futura ruta protegida debe comprobar al usuario y, cuando corresponda, el rol en el servidor. La integración con PostgreSQL y la configuración HTTPS requieren pruebas antes de desplegar.
+
+PR-004 exige sesión en lectura y escritura del perfil. La API toma `user_id` de la sesión, nunca del cuerpo enviado por el navegador; así cada persona solo consulta y modifica sus propias preferencias. `PUT /onboarding` también verifica `Origin`. Se guardan únicamente las respuestas necesarias para recomendar un inicio, sin fecha de nacimiento, datos laborales ni texto libre. La recomendación es formativa y no certifica conocimientos.

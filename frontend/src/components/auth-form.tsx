@@ -37,7 +37,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         }
         return;
       }
-      router.push("/cuenta");
+      router.push(register ? "/onboarding" : "/cuenta");
     } catch {
       setError("No se pudo conectar con el servidor. Comprueba que la API esté iniciada.");
     } finally {

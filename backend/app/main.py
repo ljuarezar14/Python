@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.database import build_engine, build_session_factory
 from app.identity.routes import router as identity_router
 from app.identity.security import RateLimiter
+from app.onboarding.routes import router as onboarding_router
 from app.settings import Settings
 
 
@@ -26,10 +27,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
         allow_credentials=True,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT"],
         allow_headers=["Content-Type"],
     )
     application.include_router(identity_router, prefix="/api/v1/auth", tags=["identity"])
+    application.include_router(onboarding_router, prefix="/api/v1/onboarding", tags=["onboarding"])
 
     @application.get("/api/v1/health", response_model=HealthResponse, tags=["system"])
     def health() -> HealthResponse:
