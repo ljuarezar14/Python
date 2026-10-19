@@ -17,3 +17,16 @@ El usuario público contiene `id`, `email` y `role`. Nunca contiene el hash de c
 El cuerpo de `PUT /onboarding` contiene `goal` (`explore`, `build`, `automate`, `innovate`), `experience` (`none`, `some`, `comfortable`), `weekly_minutes` (15, 30, 60, 120 o 180), `interests` (de uno a tres valores únicos entre `finance`, `education`, `work`, `data`, `environment`, `web`), `example_context` (`daily`, `academic`, `work`, `community`) y `known_topics` (lista opcional de `variables`, `conditionals`, `functions`). El primer interés tiene prioridad para el tema sugerido.
 
 La respuesta añade `recommendation`: `starting_point`, `focus`, `suggested_theme`, `reason`, `weekly_plan`, `example_project` y `rule_version`. La versión actual es 1. `starting_point` es una orientación textual; no enlaza a una lección publicada todavía. El usuario puede volver a enviar `PUT` para cambiar sus preferencias.
+
+## Currículo público
+
+Los endpoints siguientes son de solo lectura y no requieren sesión. Los identificadores son estables; `404` oculta tanto identificadores inexistentes como contenido no publicado. El catálogo estará vacío hasta que se publiquen lecciones revisadas.
+
+| Método y ruta | Resultado |
+| --- | --- |
+| `GET /curriculum/paths?limit=20&offset=0` | `items`, `total`, `limit`, `offset`; solo rutas publicadas, ordenadas por identificador |
+| `GET /curriculum/paths/{path_id}` | Ruta publicada y módulos publicados, ordenados por `position` |
+| `GET /curriculum/modules/{module_id}` | Módulo publicado y lecciones visibles, ordenadas por `position` |
+| `GET /curriculum/lessons/{lesson_id}` | Lección visible, `prerequisite_ids` y `content_markdown` |
+
+`limit` admite 1–100 y `offset` debe ser no negativo; valores inválidos devuelven `422`. Los resúmenes incluyen `id`, título, descripción o resumen y `version`. El detalle de módulo incluye `level` y `objectives`. Una lección con prerrequisitos no publicados, de otra ruta, posteriores o circulares no se expone. El contenido Markdown es dato, no HTML procesado por la API.

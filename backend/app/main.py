@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from app.curriculum.routes import router as curriculum_router
 from app.database import build_engine, build_session_factory
 from app.identity.routes import router as identity_router
 from app.identity.security import RateLimiter
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     application.include_router(identity_router, prefix="/api/v1/auth", tags=["identity"])
     application.include_router(onboarding_router, prefix="/api/v1/onboarding", tags=["onboarding"])
+    application.include_router(curriculum_router, prefix="/api/v1/curriculum", tags=["curriculum"])
 
     @application.get("/api/v1/health", response_model=HealthResponse, tags=["system"])
     def health() -> HealthResponse:
