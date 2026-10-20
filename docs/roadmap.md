@@ -7,7 +7,7 @@ Cada PR requiere criterios de aceptación, pruebas pertinentes, revisión de seg
 3. **PR-003:** registro, inicio de sesión y sesiones; dividir recuperación de contraseña y verificación de correo si requieren infraestructura aparte.
 4. **PR-004:** onboarding y recomendación explicable.
 5. **PR-005:** modelo curricular y API de contenidos.
-6. **PR-006:** editor y borradores.
+6. **PR-006:** mapa visible del aprendizaje, editor y borradores locales.
 7. **PR-007:** contrato de ejecución y Pyodide en worker.
 8. **PR-008:** evaluación de ejercicios y retroalimentación.
 9. **PR-009:** progreso y reanudación.

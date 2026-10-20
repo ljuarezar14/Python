@@ -1,6 +1,6 @@
 # Arquitectura inicial
 
-Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorpora el catálogo curricular de solo lectura.
+Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añade el mapa visible y un editor de borradores locales.
 
 ```mermaid
 flowchart LR
@@ -13,7 +13,7 @@ flowchart LR
 
 ## Límites actuales
 
-`frontend/` sirve la página inicial, formularios de identidad y cuestionario de preferencias. `backend/` publica salud, identidad, onboarding y currículo publicado. Usuarios, sesiones, preferencias y estructura curricular persisten mediante SQLAlchemy y migraciones Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
+`frontend/` sirve la página inicial, formularios de identidad, cuestionario de preferencias, mapa de aprendizaje y editor de Python. El borrador del editor queda solo en el navegador. `backend/` publica salud, identidad, onboarding y currículo publicado. Usuarios, sesiones, preferencias y estructura curricular persisten mediante SQLAlchemy y migraciones Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
 
 ## Dirección de las dependencias
 
