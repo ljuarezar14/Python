@@ -9,7 +9,7 @@ Cada PR requiere criterios de aceptación, pruebas pertinentes, revisión de seg
 5. **PR-005:** modelo curricular y API de contenidos.
 6. **PR-006:** mapa visible del aprendizaje, editor y borradores locales.
 7. **PR-007:** contrato de ejecución y Pyodide en worker.
-8. **PR-008:** evaluación de ejercicios y retroalimentación.
+8. **PR-008:** evaluación de ejercicios y retroalimentación, dividido en **PR-008a** (modelo, pruebas y API de ejercicios) y **PR-008b** (evaluador en el navegador e interfaz de retroalimentación).
 9. **PR-009:** progreso y reanudación.
 10. **PR-010a en adelante:** contenido básico en entregas pedagógicas pequeñas.
 11. **PR-011:** proyectos integradores.

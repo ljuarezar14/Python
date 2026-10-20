@@ -1,10 +1,14 @@
 """Public reads of published curriculum only."""
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import ValidationError
 from sqlalchemy import func, select
 
-from app.curriculum.models import LearningPath, Lesson, LessonPrerequisite, Module
+from app.curriculum.exercises import validate_checks
+from app.curriculum.models import Exercise, LearningPath, Lesson, LessonPrerequisite, Module
 from app.curriculum.schemas import (
+    ExerciseDetail,
+    ExerciseSummary,
     LessonDetail,
     LessonSummary,
     ModuleDetail,
@@ -148,8 +152,7 @@ def get_module(module_id: str, db: DbSession) -> ModuleDetail:
     )
 
 
-@router.get("/lessons/{lesson_id}", response_model=LessonDetail)
-def get_lesson(lesson_id: str, db: DbSession) -> LessonDetail:
+def visible_lesson(db: DbSession, lesson_id: str) -> tuple[Lesson, list[str]]:
     row = db.execute(
         select(Lesson, Module.path_id)
         .join(Module, Lesson.module_id == Module.id)
@@ -167,7 +170,55 @@ def get_lesson(lesson_id: str, db: DbSession) -> LessonDetail:
     visible, prerequisites = visible_lessons(db, path_id)
     if lesson_id not in visible:
         raise HTTPException(status_code=404, detail="Lección no disponible")
+    return lesson, prerequisites[lesson_id]
+
+
+def has_valid_checks(exercise: Exercise) -> bool:
+    """Hide exercises whose stored checks no longer match the contract."""
+    try:
+        validate_checks(exercise.checks)
+    except (ValidationError, ValueError):
+        return False
+    return True
+
+
+@router.get("/lessons/{lesson_id}", response_model=LessonDetail)
+def get_lesson(lesson_id: str, db: DbSession) -> LessonDetail:
+    lesson, prerequisites = visible_lesson(db, lesson_id)
+    exercises = db.scalars(
+        select(Exercise)
+        .where(Exercise.lesson_id == lesson_id, Exercise.status == "published")
+        .order_by(Exercise.position)
+    ).all()
     return LessonDetail(
-        **lesson_summary(lesson, prerequisites[lesson_id]).model_dump(),
+        **lesson_summary(lesson, prerequisites).model_dump(),
         content_markdown=lesson.content_markdown,
+        exercises=[
+            ExerciseSummary.model_validate(exercise)
+            for exercise in exercises
+            if has_valid_checks(exercise)
+        ],
+    )
+
+
+@router.get("/exercises/{exercise_id}", response_model=ExerciseDetail)
+def get_exercise(exercise_id: str, db: DbSession) -> ExerciseDetail:
+    exercise = db.scalar(
+        select(Exercise).where(Exercise.id == exercise_id, Exercise.status == "published")
+    )
+    if exercise is None or not has_valid_checks(exercise):
+        raise HTTPException(status_code=404, detail="Ejercicio no disponible")
+    try:
+        visible_lesson(db, exercise.lesson_id)
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="Ejercicio no disponible") from None
+    return ExerciseDetail(
+        id=exercise.id,
+        lesson_id=exercise.lesson_id,
+        position=exercise.position,
+        title=exercise.title,
+        version=exercise.version,
+        prompt_markdown=exercise.prompt_markdown,
+        starter_code=exercise.starter_code,
+        checks=validate_checks(exercise.checks),
     )

@@ -24,3 +24,10 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - La salida y el traceback se muestran como texto con React, sin interpretar HTML.
 - Riesgo de ingeniería social: alguien puede pedir a una persona que pegue y ejecute un programa. Su alcance queda en el worker descrito arriba, dentro del navegador de esa persona.
 - Una futura política CSP deberá permitir `'wasm-unsafe-eval'` y `worker-src 'self'`. Cualquier evaluación de alta integridad requerirá un evaluador en el servidor con aislamiento por proceso y su propio análisis de amenazas; queda fuera de este PR.
+
+## Ejercicios en PR-008a
+
+- `GET /curriculum/exercises/{id}` es de solo lectura, no requiere sesión y solo expone ejercicios publicados de lecciones visibles. Borradores, pruebas mal formadas e identificadores inexistentes responden igual (`404`).
+- **Las pruebas de cada ejercicio son públicas.** Se envían al navegador porque allí se evalúan; cualquiera puede leer las respuestas esperadas. La evaluación es formativa y no sirve como evidencia para acreditar.
+- `validate_checks` limita el número y el tamaño de las pruebas, rechaza campos desconocidos y exige nombres de función válidos. Los argumentos son datos JSON, no código; el backend nunca ejecuta el código del estudiante ni las pruebas.
+- `seed_dev` inserta datos publicados de prueba y se niega a ejecutarse con `PYRAIZ_ENV=production`. Aun así, no debe ejecutarse contra una base compartida: sus registros aparecerían en el catálogo público.

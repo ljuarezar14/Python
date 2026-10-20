@@ -26,7 +26,7 @@ uv run alembic upgrade head
 uv run uvicorn app.main:app --reload
 ```
 
-Abre `http://localhost:3000` para la página inicial y entra en **Crear cuenta**. Después del registro se abre el cuestionario; también puedes volver a él desde **Tu cuenta**. La recomendación es una orientación inicial: todavía no hay lecciones publicadas. La API responde en `http://localhost:8000/api/v1/health`, publica su documentación en `http://localhost:8000/docs` y devuelve un catálogo vacío en `http://localhost:8000/api/v1/curriculum/paths`. La migración crea o actualiza `backend/pyraiz.db`, un archivo local excluido de Git. Ejecuta el backend desde `backend/` para que la ruta relativa de SQLite sea consistente.
+Abre `http://localhost:3000` para la página inicial y entra en **Crear cuenta**. Después del registro se abre el cuestionario; también puedes volver a él desde **Tu cuenta**. La recomendación es una orientación inicial: todavía no hay lecciones publicadas. La API responde en `http://localhost:8000/api/v1/health`, publica su documentación en `http://localhost:8000/docs` y devuelve un catálogo vacío en `http://localhost:8000/api/v1/curriculum/paths`. Para probar ejercicios en local, desde `backend/`, ejecuta `uv run python -m app.curriculum.seed_dev`: carga una ruta de prueba con tres ejercicios marcados como datos sin revisión pedagógica (por ejemplo, `http://localhost:8000/api/v1/curriculum/exercises/dev-greeting`). No lo ejecutes contra una base compartida. La migración crea o actualiza `backend/pyraiz.db`, un archivo local excluido de Git. Ejecuta el backend desde `backend/` para que la ruta relativa de SQLite sea consistente.
 
 Abre `http://localhost:3000/aprender` para ver las etapas del producto y `http://localhost:3000/practicar` para escribir en el editor. **Ejecutar** (o Ctrl/⌘ + Enter) corre el código en tu navegador; la primera vez descarga el motor Pyodide, unos 6 MB. **Detener** corta una ejecución y **Reiniciar Python** borra el estado. Cada ejecución se detiene a los 10 segundos. El código no se envía al backend. Los borradores se guardan únicamente en el navegador; usa **Restablecer ejemplo** para volver al código inicial.
 
@@ -66,6 +66,7 @@ uv run ruff format --check .
 - [Mapa de aprendizaje](docs/product-map.md)
 - [Decisión del editor](docs/decisions/0005-codemirror-editor.md)
 - [Ejecución con Pyodide en Web Worker](docs/decisions/0006-pyodide-web-worker.md)
+- [Ejercicios con pruebas públicas](docs/decisions/0007-exercise-checks.md)
 - [Roadmap de PRs](docs/roadmap.md)
 - [Decisión arquitectónica inicial](docs/decisions/0001-modular-monolith.md)
 
