@@ -1,6 +1,7 @@
 """Use the same database URL and models as the application."""
 
 from alembic import context
+from app.curriculum import models as curriculum_models  # noqa: F401 - registers curriculum tables
 from app.database import Base, build_engine
 from app.identity import models  # noqa: F401 - registers tables in Base.metadata
 from app.onboarding import models as onboarding_models  # noqa: F401 - registers profile table
