@@ -62,6 +62,7 @@ export default function Home() {
             <a className={navLink} href="#metodo">Cómo aprenderás</a>
             <a className={navLink} href="#ruta">Ruta inicial</a>
             <a className={navLink} href="#proyectos">Proyectos</a>
+            <Link className={navLink} href="/aprender">Mapa de aprendizaje</Link>
             <Link className={navLink} href="/ingresar">Ingresar</Link>
             <Link className={navLink} href="/registro">Crear cuenta</Link>
           </nav>
@@ -85,7 +86,7 @@ export default function Home() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link className={`${buttonBase} bg-[#17553e] text-white hover:bg-[#0f422f]`} href="/registro">Crea tu cuenta</Link>
-                <a className={`${buttonBase} border-border bg-surface hover:bg-surface-muted`} href="#metodo">Descubre el método</a>
+                <Link className={`${buttonBase} border-border bg-surface hover:bg-surface-muted`} href="/aprender">Explora el mapa</Link>
               </div>
               <p className="mt-5 text-sm text-muted">La plataforma de aprendizaje está en construcción.</p>
             </div>

@@ -240,6 +240,7 @@ export function OnboardingForm() {
             <div><dt className="font-bold">Ejemplo de proyecto futuro</dt><dd className="text-muted">{recommendation.example_project}</dd></div>
           </dl>
           <p className="mt-6 text-sm text-muted">La ruta y las lecciones aún están en preparación. Esta sugerencia usa reglas transparentes, versión {recommendation.rule_version}, y no acredita conocimientos.</p>
+          <p className="mt-4"><Link className="font-bold text-brand underline underline-offset-4" href="/aprender">Conoce las etapas de aprendizaje</Link></p>
         </section>
       )}
     </>
