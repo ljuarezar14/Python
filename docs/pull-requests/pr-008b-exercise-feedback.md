@@ -1,6 +1,6 @@
 # PR-008b — Evaluador de ejercicios y retroalimentación
 
-Estado: implementado localmente y comprobado en Chrome y Edge sin interfaz; pendiente de prueba manual con móvil y lector de pantalla, revisión y PR remoto. Depende de PR-008a.
+Estado: implementado y comprobado en Chrome y Edge sin interfaz, con teclado y en ventana de móvil emulada. Pendiente: móvil físico, Firefox, Safari y lector de pantalla. Depende de PR-008a.
 
 ## Objetivo
 
@@ -49,7 +49,8 @@ Guardar intentos o progreso (PR-009), pantalla de lección y navegación desde e
 - [x] Un ejercicio inexistente o con formato inválido muestra un mensaje sin romper la página.
 - [x] La práctica libre sigue funcionando.
 - [x] Lint, tipos, build y pruebas correctas; backend sin cambios.
-- [ ] Recorrido manual con teclado, móvil real y lector de pantalla.
+- [x] Recorrido con teclado y en ventana de móvil emulada (Chrome y Edge).
+- [ ] Prueba en móvil físico, Firefox, Safari y lector de pantalla.
 - [ ] Cambios revisados y aprobados en PR.
 
 ## Pruebas y evidencia
@@ -75,7 +76,15 @@ Guardar intentos o progreso (PR-009), pantalla de lección y navegación desde e
 
   No hubo excepciones en la consola.
 - Contrastes calculados para los bordes de estado: fallo 4,80:1 (claro) y 9,55:1 (oscuro); acierto 7,22:1 y 6,66:1.
-- No comprobado: Firefox, Safari, móviles reales y lectores de pantalla.
+- Recorrido con teclado en Chrome y Edge sin interfaz:
+  - Orden de tabulación: «Saltar al contenido», navegación, «Volver al código inicial», editor, **Comprobar** y **Detener**, todos con indicador de foco de 3 px.
+  - Tab sale del editor hacia **Comprobar**; Enter sobre el botón evalúa y el foco se queda en él.
+  - «Ver traceback» se abre con Enter.
+- Ventana de móvil emulada (375 × 812, táctil) en ambos navegadores:
+  - Sin desplazamiento horizontal, antes y después de mostrar resultados.
+  - Botones de 44 px de alto y pruebas debajo del editor.
+  - Un toque en **Comprobar** evalúa, y los recuadros de esperado y obtenido caben en el ancho.
+- No comprobado: Firefox, Safari, móviles físicos y lectores de pantalla.
 
 ## Revisión de código
 
@@ -84,6 +93,7 @@ Antes del commit se revisó el diff completo:
 - **Corregido:** la comparación del valor devuelto y su `repr` se ejecutaban fuera de cualquier `try`, y ambas pueden ejecutar código del estudiante. Una lista recursiva o un `__repr__` defectuoso habrían detenido el worker. Ahora se capturan, y una prueba lo cubre.
 - **Corregido:** `border-focus` no existía como utilidad de Tailwind; se expuso `--color-focus`.
 - **Mejorado:** el recuadro «Obtenido» vacío ahora dice «(sin salida)».
+- **Corregido tras el recorrido con teclado:** «Ver traceback» mostraba el anillo de foco del navegador, de 1 px. `summary` se añadió a la regla global de foco de `globals.css`.
 - **Aceptado:** un programa puede modificar `builtins` y afectar a ejecuciones posteriores del mismo worker; **Reiniciar Python** en la práctica libre, o recargar la página, lo restablece.
 
 ## Seguridad y riesgos
