@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createBrowserRunner, ENGINE_LABELS, FIRST_LOAD_MESSAGE, formatDuration } from "@/lib/execution/browser-runner";
 import { EXECUTION_CONTRACT_VERSION } from "@/lib/execution/contract";
 import type { OutputStream, RunResult, RunnerState } from "@/lib/execution/contract";
-import { WorkerPythonRunner } from "@/lib/execution/worker-runner";
+import type { WorkerPythonRunner } from "@/lib/execution/worker-runner";
+import { useLocalDraft } from "@/lib/use-local-draft";
 
 const PythonCodeEditor = dynamic(() => import("@/components/python-code-editor"), {
   ssr: false,
@@ -12,23 +14,9 @@ const PythonCodeEditor = dynamic(() => import("@/components/python-code-editor")
 });
 
 const DRAFT_KEY = "pyraiz.python.scratchpad.v1";
-const MAX_DRAFT_LENGTH = 100_000;
 const STARTER_CODE = 'gastos = [12, 8, 15]\ntotal = sum(gastos)\nprint(f"Total: S/ {total}")\n';
 
 type OutputChunk = { stream: OutputStream; text: string };
-
-const ENGINE_LABELS: Record<RunnerState, string> = {
-  idle: "Python se cargará al ejecutar",
-  loading: "Cargando Python…",
-  ready: "Python listo",
-  running: "Ejecutando…",
-  failed: "Python no pudo cargarse",
-};
-
-function formatDuration(ms: number) {
-  if (ms < 10) return "menos de 0,01 s";
-  return `${(ms / 1000).toLocaleString("es", { maximumFractionDigits: 2 })} s`;
-}
 
 function summarize(result: RunResult) {
   const notes = result.status === "success" || result.status === "error" ? result.diagnostics.join(" ") : "";
@@ -51,9 +39,7 @@ function appendChunk(chunks: OutputChunk[], stream: OutputStream, text: string) 
 }
 
 export function PracticeWorkspace() {
-  const [code, setCode] = useState(STARTER_CODE);
-  const [ready, setReady] = useState(false);
-  const [saveStatus, setSaveStatus] = useState("Cargando borrador…");
+  const { code, ready, saveStatus, changeCode } = useLocalDraft(DRAFT_KEY, STARTER_CODE, "Ejemplo inicial listo para editar.");
   const [engineState, setEngineState] = useState<RunnerState>("idle");
   const [output, setOutput] = useState<OutputChunk[]>([]);
   const [result, setResult] = useState<RunResult | null>(null);
@@ -67,11 +53,7 @@ export function PracticeWorkspace() {
   }, [code]);
 
   useEffect(() => {
-    const runner = new WorkerPythonRunner({
-      // Pyodide exige un worker de módulo; se compila aparte con tsconfig.worker.json.
-      createWorker: () => new Worker("/execution/python-worker.js", { type: "module" }),
-      onStateChange: setEngineState,
-    });
+    const runner = createBrowserRunner(setEngineState);
     runnerRef.current = runner;
     return () => {
       runner.dispose();
@@ -79,53 +61,12 @@ export function PracticeWorkspace() {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (cancelled) return;
-      try {
-        const saved = window.localStorage.getItem(DRAFT_KEY);
-        if (saved !== null && saved.length <= MAX_DRAFT_LENGTH) {
-          setCode(saved);
-          setSaveStatus("Borrador recuperado de este navegador.");
-        } else {
-          setSaveStatus("Ejemplo inicial listo para editar.");
-        }
-      } catch {
-        setSaveStatus("El almacenamiento del navegador no está disponible.");
-      }
-      setReady(true);
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    const timer = window.setTimeout(() => {
-      if (code.length > MAX_DRAFT_LENGTH) {
-        setSaveStatus("El borrador supera el límite de 100 000 caracteres y no se guardó.");
-        return;
-      }
-      try {
-        window.localStorage.setItem(DRAFT_KEY, code);
-        setSaveStatus("Borrador guardado en este navegador.");
-      } catch {
-        setSaveStatus("No se pudo guardar el borrador en este navegador.");
-      }
-    }, 700);
-    return () => window.clearTimeout(timer);
-  }, [code, ready]);
-
   const runCode = useCallback(async () => {
     const runner = runnerRef.current;
     if (!runner || runner.state === "running") return;
     setOutput([]);
     setResult(null);
-    setRunStatus(
-      runner.state === "ready"
-        ? "Ejecutando…"
-        : "Preparando Python. La primera vez descarga varios megabytes y puede tardar.",
-    );
+    setRunStatus(runner.state === "ready" ? "Ejecutando…" : FIRST_LOAD_MESSAGE);
     runCounterRef.current += 1;
     const finished = await runner.run(
       {
@@ -160,15 +101,9 @@ export function PracticeWorkspace() {
     }
   }
 
-  function changeCode(next: string) {
-    setCode(next);
-    setSaveStatus("Guardando borrador…");
-  }
-
   function resetCode() {
     if (window.confirm("¿Restablecer el ejemplo? Se reemplazará tu borrador actual.")) {
-      setCode(STARTER_CODE);
-      setSaveStatus("Guardando borrador…");
+      changeCode(STARTER_CODE);
     }
   }
 

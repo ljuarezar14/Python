@@ -1,6 +1,6 @@
 # Arquitectura inicial
 
-Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añadió el mapa visible y un editor de borradores locales; PR-007 ejecuta Python en el navegador con Pyodide dentro de un Web Worker; PR-008a añade ejercicios con pruebas públicas a la API del currículo.
+Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añadió el mapa visible y un editor de borradores locales; PR-007 ejecuta Python en el navegador con Pyodide dentro de un Web Worker; PR-008a añadió ejercicios con pruebas públicas a la API del currículo; PR-008b los evalúa en el navegador y muestra retroalimentación por prueba.
 
 ```mermaid
 flowchart LR
@@ -23,7 +23,7 @@ La interfaz llama contratos HTTP versionados. Los casos de uso futuros contendr�
 
 Identidad: `User`, `AuthSession` y `UserProfile` ya están migrados. Currículo: `LearningPath`, `Module`, `Lesson`, `LessonPrerequisite` y `Exercise` ya tienen persistencia. Los intentos y el progreso se añadirán cuando existan sus flujos. Los detalles de claves y restricciones están en [data-model.md](data-model.md).
 
-Los contratos de salud, identidad, onboarding y currículo usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). El contrato de ejecución local vive en `frontend/src/lib/execution/contract.ts`. La solicitud incluye versión del contrato, identificador de ejecución, modo, `exerciseId` opcional y código; el resultado devuelve estado, salida estándar y de errores, error estructurado con la línea del estudiante, duración, recorte, motor y diagnósticos. `WorkerPythonRunner` lo implementa sobre un Web Worker con Pyodide; la interfaz no depende de Pyodide. Detalles y límites en [ADR-0006](decisions/0006-pyodide-web-worker.md).
+Los contratos de salud, identidad, onboarding y currículo usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). El contrato de ejecución local vive en `frontend/src/lib/execution/contract.ts`. La solicitud incluye versión del contrato, identificador de ejecución, modo, `exerciseId` opcional y código; el resultado devuelve estado, salida estándar y de errores, error estructurado con la línea del estudiante, duración, recorte, motor y diagnósticos. `WorkerPythonRunner` lo implementa sobre un Web Worker con Pyodide; la interfaz no depende de Pyodide. Desde PR-008b, `evaluate` recibe las pruebas de un ejercicio y devuelve un resultado por prueba ([ADR-0007](decisions/0007-exercise-checks.md)). Detalles y límites en [ADR-0006](decisions/0006-pyodide-web-worker.md).
 
 ## Seguridad y operación
 

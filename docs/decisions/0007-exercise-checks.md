@@ -1,6 +1,6 @@
 # ADR-0007 — Ejercicios con pruebas públicas evaluadas en el navegador
 
-Estado: aceptado para PR-008a (modelo y API). La evaluación en el navegador se implementará en PR-008b.
+Estado: aceptado. PR-008a implementó el modelo y la API; PR-008b, la evaluación en el navegador.
 
 ## Contexto
 
@@ -15,7 +15,7 @@ Las pruebas siguen un contrato cerrado, validado con Pydantic en `app/curriculum
 - **`output`**: ejecuta el programa con líneas de entrada opcionales (`stdin`, hasta 50 líneas de una sola línea cada una) y compara lo que imprime con `expected_stdout` (hasta 10 000 caracteres).
 - **`function`**: ejecuta el programa, llama a `function_name` (identificador válido de Python) con `args` JSON y compara el resultado con `expected` JSON. Argumentos y resultado ocupan como máximo 10 000 caracteres serializados.
 
-Reglas que deberá aplicar el evaluador de PR-008b, para que el contenido pueda escribirse desde ahora:
+Reglas que aplica el evaluador (`EVALUATOR_SOURCE` en `frontend/src/lib/execution/python-harness.ts`):
 
 - La salida se compara ignorando los espacios al final de cada línea y las líneas vacías finales. El resto, incluidas mayúsculas y tildes, debe coincidir.
 - Durante la evaluación, `input()` devuelve las líneas de `stdin` en orden y **su texto de solicitud no forma parte de la salida comparada**. Si se agotan las líneas, el programa recibe `EOFError`.
@@ -24,6 +24,15 @@ Reglas que deberá aplicar el evaluador de PR-008b, para que el contenido pueda 
 Un ejercicio es visible solo si está publicado, sus pruebas cumplen el contrato y su lección es visible según ADR-0004. En cualquier otro caso, `GET /curriculum/exercises/{id}` responde `404` y el ejercicio no aparece en la lección. Ocultar datos inválidos no sustituye la validación al publicar: la futura herramienta editorial deberá llamar a `validate_checks` antes de guardar.
 
 `python -m app.curriculum.seed_dev` carga tres ejercicios de prueba, marcados como datos sin revisión pedagógica, para verificar el flujo en local. No forma parte de las migraciones, se puede ejecutar varias veces sin duplicar registros y se niega a ejecutarse con `PYRAIZ_ENV=production`.
+
+## Evaluación en el navegador (PR-008b)
+
+El contrato de ejecución añade una operación `evaluate`, separada de `run`. Recibe el código y las pruebas, y devuelve el estado global (`passed`, `failed`, `timeout`, `cancelled`, `rejected`, `engine_error`), el número de pruebas correctas y un resultado por prueba (`passed`, `failed`, `error`, `not_run`). Cada resultado incluye un mensaje en español, los valores esperado y obtenido, la primera línea distinta, la salida del programa y el error con la línea del estudiante.
+
+- Cada prueba ejecuta el programa desde cero, con variables limpias. La salida se captura por prueba con el límite de 20 000 caracteres; si se supera, la prueba falla.
+- El worker envía cada resultado en cuanto termina la prueba. El tiempo límite de 10 s cubre la evaluación completa: si se agota, se conservan las pruebas terminadas y las demás quedan como `not_run`.
+- El hilo principal solo acepta resultados de pruebas solicitadas, una vez cada una.
+- La página `/practicar/ejercicios/{id}` carga el ejercicio desde la API, valida su forma y guarda un borrador por ejercicio y versión en el navegador. El enunciado se interpreta con un subconjunto mínimo de Markdown (párrafos, `código` y _énfasis_) que produce elementos de React, nunca HTML.
 
 ## Seguridad
 
@@ -37,4 +46,4 @@ Las pruebas viajan al navegador porque allí se ejecutan. **Son públicas por di
 
 ## Consecuencias
 
-PR-008b podrá cargar ejercicios desde la API y evaluarlos sin depender de Pyodide en el contrato. PR-009 podrá referenciar ejercicios por identificador estable y versión, pero el resultado que reporte el navegador seguirá siendo autodeclarado. Añadir un tipo de prueba nuevo exige ampliar el contrato, el evaluador y esta decisión.
+La interfaz evalúa a través del contrato, sin depender de Pyodide. PR-009 podrá referenciar ejercicios por identificador estable y versión, pero el resultado que reporte el navegador seguirá siendo autodeclarado. Añadir un tipo de prueba nuevo exige ampliar el contrato, el evaluador y esta decisión.

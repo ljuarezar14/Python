@@ -28,6 +28,7 @@
   --color-code: var(--code);
   --color-code-text: var(--code-text);
   --color-code-error: var(--code-error);
+  --color-focus: var(--focus);
 }
 
 @media (prefers-color-scheme: dark) {
