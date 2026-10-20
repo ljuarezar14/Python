@@ -31,3 +31,12 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - **Las pruebas de cada ejercicio son públicas.** Se envían al navegador porque allí se evalúan; cualquiera puede leer las respuestas esperadas. La evaluación es formativa y no sirve como evidencia para acreditar.
 - `validate_checks` limita el número y el tamaño de las pruebas, rechaza campos desconocidos y exige nombres de función válidos. Los argumentos son datos JSON, no código; el backend nunca ejecuta el código del estudiante ni las pruebas.
 - `seed_dev` inserta datos publicados de prueba y se niega a ejecutarse con `PYRAIZ_ENV=production`. Aun así, no debe ejecutarse contra una base compartida: sus registros aparecerían en el catálogo público.
+
+## Evaluación de ejercicios en PR-008b
+
+- La evaluación ocurre en el mismo Web Worker de PR-007, con sus límites y su advertencia: **no es una sandbox**. El backend no ejecuta código ni recibe resultados.
+- Un programa puede falsificar su resultado (por ejemplo, alcanzando JavaScript del worker por vías internas de Pyodide o modificando la página). Por eso los resultados son formativos, no se guardan en este PR y no deben usarse para acreditar. El progreso de PR-009 deberá tratarlos como autodeclarados.
+- El hilo principal valida la forma de cada mensaje del worker y acepta solo resultados de pruebas solicitadas, una vez cada una. Los datos del ejercicio que llegan de la API también se validan antes de usarse.
+- La petición a la API se hace con `credentials: "omit"`: leer un ejercicio público no envía la cookie de sesión.
+- El enunciado se interpreta con un subconjunto mínimo de Markdown que produce elementos de React; el HTML incluido en el texto se muestra literalmente. Salida, valores esperados y tracebacks se muestran como texto.
+- El borrador de cada ejercicio se guarda solo en el navegador, con la misma advertencia para equipos compartidos que la práctica libre.

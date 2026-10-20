@@ -2,7 +2,7 @@
 // Python se ejecuta; el hilo principal lo termina ante cancelación o tiempo límite.
 
 import type { loadPyodide as LoadPyodide } from "pyodide";
-import type { WorkerRequest, WorkerResponse } from "./contract.ts";
+import type { ExerciseCheck, WorkerRequest, WorkerResponse } from "./contract.ts";
 import { preparePyodide } from "./python-harness.ts";
 import { hardenWorkerScope } from "./worker-hardening.ts";
 
@@ -18,11 +18,11 @@ const scope = globalThis as unknown as WorkerScope;
 // workers clásicos y el empaquetador de Next.js los crea sin type: "module".
 const indexURL = new URL("/pyodide/", scope.location.origin).href;
 
-let runCode: ReturnType<typeof preparePyodide> | null = null;
+let harness: ReturnType<typeof preparePyodide> | null = null;
 let initializing = false;
 
 async function initialize() {
-  if (runCode || initializing) return;
+  if (harness || initializing) return;
   initializing = true;
   try {
     const moduleURL = `${indexURL}pyodide.mjs`;
@@ -30,7 +30,7 @@ async function initialize() {
       loadPyodide: typeof LoadPyodide;
     };
     const pyodide = await loadPyodide({ indexURL, fullStdLib: false });
-    runCode = preparePyodide(pyodide);
+    harness = preparePyodide(pyodide);
     hardenWorkerScope(globalThis);
     scope.postMessage({ type: "ready", engine: { name: "pyodide", version: pyodide.version } });
   } catch {
@@ -40,15 +40,27 @@ async function initialize() {
   }
 }
 
+function notReady() {
+  scope.postMessage({ type: "init-error", message: "El motor de Python no está listo." });
+}
+
 function run(runId: string, code: string, maxOutputChars: number) {
-  if (!runCode) {
-    scope.postMessage({ type: "init-error", message: "El motor de Python no está listo." });
-    return;
-  }
-  const outcome = runCode(code, maxOutputChars, (stream, text) => {
+  if (!harness) return notReady();
+  const outcome = harness.run(code, maxOutputChars, (stream, text) => {
     scope.postMessage({ type: "output", runId, stream, text });
   });
   scope.postMessage({ type: "result", runId, outcome });
+}
+
+// Cada resultado se envía al terminar su prueba: si un bucle infinito agota el
+// tiempo, el hilo principal conserva las pruebas ya evaluadas.
+function evaluate(runId: string, code: string, checks: ExerciseCheck[], maxOutputChars: number) {
+  if (!harness) return notReady();
+  const started = performance.now();
+  for (const check of checks) {
+    scope.postMessage({ type: "check", runId, result: harness.evaluateCheck(code, check, maxOutputChars) });
+  }
+  scope.postMessage({ type: "evaluation-done", runId, durationMs: Math.round(performance.now() - started) });
 }
 
 scope.onmessage = (event) => {
@@ -57,5 +69,7 @@ scope.onmessage = (event) => {
     void initialize();
   } else if (message.type === "run") {
     run(message.runId, message.code, message.maxOutputChars);
+  } else if (message.type === "evaluate") {
+    evaluate(message.runId, message.code, message.checks, message.maxOutputChars);
   }
 };

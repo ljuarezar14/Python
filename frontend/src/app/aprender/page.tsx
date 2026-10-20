@@ -24,7 +24,7 @@ const stages = [
   {
     number: "04",
     title: "Práctica",
-    description: "Ya puedes escribir Python, ejecutarlo en tu navegador y conservar un borrador. La evaluación de ejercicios llegará después.",
+    description: "Ya puedes escribir Python, ejecutarlo en tu navegador y conservar un borrador. Los ejercicios con pruebas automáticas aparecerán cuando se publiquen las lecciones.",
     status: "Editor y ejecución disponibles",
     href: "/practicar",
     action: "Abrir editor",

@@ -8,11 +8,11 @@ import { preparePyodide } from "./python-harness.ts";
 
 type Chunk = { stream: OutputStream; text: string };
 
-let runCode: ReturnType<typeof preparePyodide>;
+let harness: ReturnType<typeof preparePyodide>;
 
 function execute(code: string, maxOutputChars = 20_000) {
   const chunks: Chunk[] = [];
-  const outcome = runCode(code, maxOutputChars, (stream, text) => chunks.push({ stream, text }));
+  const outcome = harness.run(code, maxOutputChars, (stream, text) => chunks.push({ stream, text }));
   const read = (stream: OutputStream) =>
     chunks.filter((chunk) => chunk.stream === stream).map((chunk) => chunk.text).join("");
   return { outcome, stdout: read("stdout"), stderr: read("stderr") };
@@ -20,7 +20,7 @@ function execute(code: string, maxOutputChars = 20_000) {
 
 describe("arnés de Pyodide", { timeout: 120_000 }, () => {
   before(async () => {
-    runCode = preparePyodide(await loadPyodide());
+    harness = preparePyodide(await loadPyodide());
   });
 
   test("captura print, incluido texto sin salto de línea final", () => {

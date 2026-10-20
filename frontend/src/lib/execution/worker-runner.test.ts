@@ -3,7 +3,15 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { EXECUTION_CONTRACT_VERSION } from "./contract.ts";
-import type { RunRequest, RunnerState, WorkerRequest, WorkerResponse } from "./contract.ts";
+import type {
+  CheckResult,
+  EvaluationRequest,
+  ExerciseCheck,
+  RunRequest,
+  RunnerState,
+  WorkerRequest,
+  WorkerResponse,
+} from "./contract.ts";
 import { WorkerPythonRunner } from "./worker-runner.ts";
 import type { WorkerLike } from "./worker-runner.ts";
 
@@ -30,8 +38,8 @@ class FakeWorker implements WorkerLike {
   }
 
   lastRunId() {
-    const run = this.received.findLast((message) => message.type === "run");
-    assert.ok(run && run.type === "run", "el worker no recibió una ejecución");
+    const run = this.received.findLast((message) => message.type === "run" || message.type === "evaluate");
+    assert.ok(run && (run.type === "run" || run.type === "evaluate"), "el worker no recibió una ejecución");
     return run.runId;
   }
 }
@@ -228,5 +236,135 @@ describe("WorkerPythonRunner", () => {
     const result = await runner.run(request());
     assert.equal(result.status, "engine_error");
     assert.equal(runner.state, "failed");
+  });
+});
+
+const CHECKS: ExerciseCheck[] = [
+  { kind: "output", id: "a", description: "A", stdin: [], expected_stdout: "a\n" },
+  { kind: "output", id: "b", description: "B", stdin: [], expected_stdout: "b\n" },
+];
+
+function evaluation(checks: ExerciseCheck[] = CHECKS, runId = "eval-1"): EvaluationRequest {
+  return {
+    contractVersion: EXECUTION_CONTRACT_VERSION,
+    runId,
+    exerciseId: "dev-greeting",
+    exerciseVersion: 1,
+    code: 'print("a")',
+    checks,
+  };
+}
+
+function checkResult(id: string, status: CheckResult["status"]): CheckResult {
+  return {
+    id,
+    status,
+    message: status,
+    expected: null,
+    actual: null,
+    firstDifferentLine: null,
+    stdout: "",
+    error: null,
+    truncated: false,
+  };
+}
+
+describe("WorkerPythonRunner.evaluate", () => {
+  test("transmite cada prueba y resume el resultado", async () => {
+    const { runner, workers } = setup();
+    const streamed: string[] = [];
+    const pending = runner.evaluate(evaluation(), { onCheck: (result) => streamed.push(result.id) });
+    await tick();
+    const worker = workers[0];
+    const sent = worker.received.find((message) => message.type === "evaluate");
+    assert.ok(sent && sent.type === "evaluate");
+    assert.deepEqual(sent.checks, CHECKS);
+    const runId = worker.lastRunId();
+    worker.emit({ type: "check", runId, result: checkResult("a", "passed") });
+    worker.emit({ type: "check", runId, result: checkResult("b", "failed") });
+    worker.emit({ type: "evaluation-done", runId, durationMs: 9 });
+    const result = await pending;
+    assert.equal(result.status, "failed");
+    assert.equal(result.passedCount, 1);
+    assert.equal(result.totalCount, 2);
+    assert.equal(result.durationMs, 9);
+    assert.equal(result.exerciseId, "dev-greeting");
+    assert.deepEqual(streamed, ["a", "b"]);
+    assert.equal(runner.state, "ready");
+  });
+
+  test("aprueba solo si todas las pruebas pasan", async () => {
+    const { runner, workers } = setup();
+    const pending = runner.evaluate(evaluation());
+    await tick();
+    const runId = workers[0].lastRunId();
+    workers[0].emit({ type: "check", runId, result: checkResult("a", "passed") });
+    workers[0].emit({ type: "check", runId, result: checkResult("b", "passed") });
+    workers[0].emit({ type: "evaluation-done", runId, durationMs: 1 });
+    assert.equal((await pending).status, "passed");
+  });
+
+  test("al agotar el tiempo conserva las pruebas terminadas y marca el resto como no ejecutadas", async () => {
+    const { runner, workers } = setup({ runTimeoutMs: 30 });
+    const pending = runner.evaluate(evaluation());
+    await tick();
+    workers[0].emit({ type: "check", runId: workers[0].lastRunId(), result: checkResult("a", "passed") });
+    const result = await pending;
+    assert.equal(result.status, "timeout");
+    assert.deepEqual(
+      result.checks.map((check) => check.status),
+      ["passed", "not_run"],
+    );
+    assert.match(result.diagnostics[0], /La evaluación superó/);
+    assert.equal(workers[0].terminated, true);
+  });
+
+  test("ignora pruebas desconocidas, repetidas o de otra evaluación", async () => {
+    const { runner, workers } = setup();
+    const pending = runner.evaluate(evaluation());
+    await tick();
+    const worker = workers[0];
+    const runId = worker.lastRunId();
+    worker.emit({ type: "check", runId, result: checkResult("inventada", "passed") });
+    worker.emit({ type: "check", runId: "otra", result: checkResult("b", "passed") });
+    worker.emit({ type: "check", runId, result: checkResult("a", "failed") });
+    worker.emit({ type: "check", runId, result: checkResult("a", "passed") });
+    worker.emit({ type: "check", runId, result: { id: "b", status: "aprobada" } });
+    worker.emit({ type: "evaluation-done", runId, durationMs: 1 });
+    const result = await pending;
+    assert.deepEqual(
+      result.checks.map((check) => [check.id, check.status]),
+      [
+        ["a", "failed"],
+        ["b", "not_run"],
+      ],
+    );
+    assert.equal(result.status, "failed");
+  });
+
+  test("cancel detiene la evaluación", async () => {
+    const { runner, workers } = setup();
+    const pending = runner.evaluate(evaluation());
+    await tick();
+    runner.cancel();
+    const result = await pending;
+    assert.equal(result.status, "cancelled");
+    assert.equal(workers[0].terminated, true);
+  });
+
+  test("rechaza un ejercicio sin pruebas o mientras otra tarea está en curso", async () => {
+    const { runner } = setup();
+    const empty = await runner.evaluate(evaluation([]));
+    assert.equal(empty.status, "rejected");
+    assert.match(empty.diagnostics[0], /no tiene pruebas/);
+
+    void runner.run(request());
+    const busy = await runner.evaluate(evaluation());
+    assert.equal(busy.status, "rejected");
+    assert.deepEqual(
+      busy.checks.map((check) => check.status),
+      ["not_run", "not_run"],
+    );
+    runner.dispose();
   });
 });
