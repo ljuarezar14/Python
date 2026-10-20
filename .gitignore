@@ -9,6 +9,8 @@ __pycache__/
 *.py[cod]
 frontend/node_modules/
 frontend/.next/
+frontend/public/pyodide/
+frontend/public/execution/
 frontend/tsconfig.tsbuildinfo
 .env
 .env.local
