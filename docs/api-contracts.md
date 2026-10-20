@@ -27,6 +27,9 @@ Los endpoints siguientes son de solo lectura y no requieren sesión. Los identif
 | `GET /curriculum/paths?limit=20&offset=0` | `items`, `total`, `limit`, `offset`; solo rutas publicadas, ordenadas por identificador |
 | `GET /curriculum/paths/{path_id}` | Ruta publicada y módulos publicados, ordenados por `position` |
 | `GET /curriculum/modules/{module_id}` | Módulo publicado y lecciones visibles, ordenadas por `position` |
-| `GET /curriculum/lessons/{lesson_id}` | Lección visible, `prerequisite_ids` y `content_markdown` |
+| `GET /curriculum/lessons/{lesson_id}` | Lección visible, `prerequisite_ids`, `content_markdown` y `exercises` (resúmenes de ejercicios publicados y válidos, ordenados por `position`) |
+| `GET /curriculum/exercises/{exercise_id}` | Ejercicio publicado de una lección visible: `lesson_id`, `position`, `title`, `version`, `prompt_markdown`, `starter_code` y `checks` |
 
 `limit` admite 1–100 y `offset` debe ser no negativo; valores inválidos devuelven `422`. Los resúmenes incluyen `id`, título, descripción o resumen y `version`. El detalle de módulo incluye `level` y `objectives`. Una lección con prerrequisitos no publicados, de otra ruta, posteriores o circulares no se expone. El contenido Markdown es dato, no HTML procesado por la API.
+
+Desde PR-008a, `checks` es una lista de pruebas `output` (`id`, `description`, `stdin`, `expected_stdout`) o `function` (`id`, `description`, `function_name`, `args`, `expected`). Un ejercicio en borrador, con pruebas que no cumplen el contrato o de una lección no visible responde `404` con `Ejercicio no disponible`. Las pruebas son públicas porque se ejecutan en el navegador; las reglas de comparación están en [ADR-0007](decisions/0007-exercise-checks.md).

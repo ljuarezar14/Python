@@ -2,6 +2,8 @@
 
 from pydantic import BaseModel, ConfigDict
 
+from app.curriculum.exercises import ExerciseCheck
+
 
 class PathSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -51,5 +53,22 @@ class ModuleDetail(ModuleSummary):
     lessons: list[LessonSummary]
 
 
+class ExerciseSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    position: int
+    title: str
+    version: int
+
+
 class LessonDetail(LessonSummary):
     content_markdown: str
+    exercises: list[ExerciseSummary]
+
+
+class ExerciseDetail(ExerciseSummary):
+    lesson_id: str
+    prompt_markdown: str
+    starter_code: str
+    checks: list[ExerciseCheck]

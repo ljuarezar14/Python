@@ -79,6 +79,32 @@ class Lesson(Base):
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
 
+class Exercise(Base):
+    __tablename__ = "learning_exercises"
+    __table_args__ = (
+        UniqueConstraint("lesson_id", "position", name="uq_learning_exercises_lesson_position"),
+        CheckConstraint("position > 0", name="ck_learning_exercises_position"),
+        CheckConstraint("status IN ('draft', 'published')", name="ck_learning_exercises_status"),
+        CheckConstraint("version > 0", name="ck_learning_exercises_version"),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    lesson_id: Mapped[str] = mapped_column(
+        String(64),
+        ForeignKey("learning_lessons.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str] = mapped_column(String(160), nullable=False)
+    prompt_markdown: Mapped[str] = mapped_column(Text, nullable=False)
+    starter_code: Mapped[str] = mapped_column(Text, nullable=False)
+    # Lista de pruebas validada por app.curriculum.exercises antes de guardarse o publicarse.
+    checks: Mapped[list[dict]] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="draft")
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+
+
 class LessonPrerequisite(Base):
     __tablename__ = "lesson_prerequisites"
     __table_args__ = (
