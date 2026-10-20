@@ -6,13 +6,15 @@ import type { EditorView as CodeMirrorView } from "@codemirror/view";
 type PythonCodeEditorProps = {
   value: string;
   onChange: (value: string) => void;
+  onRun?: () => void;
 };
 
-export default function PythonCodeEditor({ value, onChange }: PythonCodeEditorProps) {
+export default function PythonCodeEditor({ value, onChange, onRun }: PythonCodeEditorProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<CodeMirrorView | null>(null);
   const currentValueRef = useRef(value);
   const changeHandlerRef = useRef(onChange);
+  const runHandlerRef = useRef(onRun);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -30,10 +32,14 @@ export default function PythonCodeEditor({ value, onChange }: PythonCodeEditorPr
   }, [onChange]);
 
   useEffect(() => {
+    runHandlerRef.current = onRun;
+  }, [onRun]);
+
+  useEffect(() => {
     let disposed = false;
     async function loadEditor() {
       try {
-        const [{ python }, { EditorState }, { EditorView }, { basicSetup }] = await Promise.all([
+        const [{ python }, { EditorState, Prec }, { EditorView, keymap }, { basicSetup }] = await Promise.all([
           import("@codemirror/lang-python"),
           import("@codemirror/state"),
           import("@codemirror/view"),
@@ -67,6 +73,18 @@ export default function PythonCodeEditor({ value, onChange }: PythonCodeEditorPr
         viewRef.current = new EditorView({
           doc: currentValueRef.current,
           extensions: [
+            Prec.highest(
+              keymap.of([
+                {
+                  key: "Mod-Enter",
+                  run: () => {
+                    if (!runHandlerRef.current) return false;
+                    runHandlerRef.current();
+                    return true;
+                  },
+                },
+              ]),
+            ),
             basicSetup,
             python(),
             EditorState.tabSize.of(4),
@@ -99,6 +117,12 @@ export default function PythonCodeEditor({ value, onChange }: PythonCodeEditorPr
           aria-label="Código Python"
           className="min-h-80 w-full resize-y border-0 bg-[#f7faf7] p-4 font-mono text-sm text-[#14271e] focus:outline-3 focus:outline-[#b7562b]"
           onChange={(event) => onChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (onRun && event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+              event.preventDefault();
+              onRun();
+            }
+          }}
           spellCheck={false}
           value={value}
         />

@@ -17,8 +17,10 @@ PR-002 establece una identidad visual sobria inspirada en crecimiento y raíces.
 - La navegación se distribuye en varias líneas en pantallas estrechas sin depender de JavaScript.
 - El movimiento de desplazamiento se desactiva con `prefers-reduced-motion`.
 - El ejemplo de código se puede enfocar y desplazar con teclado si no cabe en pantalla.
-- La página declara explícitamente que los proyectos aún no están disponibles. El mapa y el editor distinguen la edición disponible de la ejecución futura.
+- La página declara explícitamente que los proyectos aún no están disponibles. El mapa y la práctica distinguen ejecución disponible de evaluación futura.
 
 PR-006 amplía la navegación con una cabecera compartida para mapa y práctica. El editor usa CodeMirror con una etiqueta accesible, foco visible y diseño de una columna en pantallas estrechas. La consola tiene texto explicativo en lugar de una salida simulada. Quedan pendientes pruebas manuales con móvil y lectores de pantalla.
+
+PR-007 añade los botones **Ejecutar**, **Detener** y **Reiniciar Python** con altura táctil de 44 px y el atajo Ctrl/⌘ + Enter declarado con `aria-keyshortcuts`. Los botones no disponibles usan `aria-disabled` en lugar de `disabled` para no perder el foco al cambiar de estado. Una región `role="status"` anuncia un resumen breve (inicio, duración, línea del error, recorte o tiempo límite); la salida completa vive en un `<pre>` enfocable que no se anuncia línea por línea. El token `--code-error` (#ffb4a3) marca la salida de errores sobre el fondo de código, con contraste calculado de 9,52:1 en modo claro y 10,92:1 en oscuro; el bloque de error añade tipo y línea en texto para no depender solo del color.
 
 El objetivo es WCAG 2.2 AA. Esta base requiere una revisión posterior con lectores de pantalla y dispositivos reales; el build y la inspección de marcado no sustituyen esas pruebas.

@@ -24,8 +24,8 @@ const stages = [
   {
     number: "04",
     title: "Práctica",
-    description: "Ya puedes escribir Python y conservar un borrador en este navegador. La ejecución llegará después.",
-    status: "Editor disponible",
+    description: "Ya puedes escribir Python, ejecutarlo en tu navegador y conservar un borrador. La evaluación de ejercicios llegará después.",
+    status: "Editor y ejecución disponibles",
     href: "/practicar",
     action: "Abrir editor",
   },
@@ -50,7 +50,7 @@ export default function LearningMapPage() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link className="inline-flex min-h-12 items-center rounded-xl bg-[#17553e] px-5 py-3 font-bold text-white no-underline hover:bg-[#0f422f]" href="/onboarding">Definir mi objetivo</Link>
-            <Link className="inline-flex min-h-12 items-center rounded-xl border border-border bg-surface px-5 py-3 font-bold no-underline hover:bg-surface-muted" href="/practicar">Probar el editor</Link>
+            <Link className="inline-flex min-h-12 items-center rounded-xl border border-border bg-surface px-5 py-3 font-bold no-underline hover:bg-surface-muted" href="/practicar">Practicar con Python</Link>
           </div>
 
           <ol className="mt-12 grid gap-4 md:grid-cols-2" aria-label="Etapas de aprendizaje">

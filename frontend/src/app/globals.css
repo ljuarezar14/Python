@@ -13,6 +13,7 @@
   --focus: #b7562b;
   --code: #10241e;
   --code-text: #eaf6ed;
+  --code-error: #ffb4a3;
 }
 
 @theme inline {
@@ -26,6 +27,7 @@
   --color-border: var(--border);
   --color-code: var(--code);
   --color-code-text: var(--code-text);
+  --color-code-error: var(--code-error);
 }
 
 @media (prefers-color-scheme: dark) {

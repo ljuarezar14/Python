@@ -1,19 +1,19 @@
 # Arquitectura inicial
 
-Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añade el mapa visible y un editor de borradores locales.
+Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añadió el mapa visible y un editor de borradores locales; PR-007 ejecuta Python en el navegador con Pyodide dentro de un Web Worker.
 
 ```mermaid
 flowchart LR
   U[Usuario] --> F[Next.js]
   F --> API[FastAPI /api/v1]
-  F --> EX[Adaptador de ejecución futuro]
-  EX --> PY[Pyodide en Web Worker futuro]
+  F --> EX[Contrato de ejecución]
+  EX --> PY[Pyodide en Web Worker de módulo]
   API --> DB[(SQLite local / PostgreSQL configurable)]
 ```
 
 ## Límites actuales
 
-`frontend/` sirve la página inicial, formularios de identidad, cuestionario de preferencias, mapa de aprendizaje y editor de Python. El borrador del editor queda solo en el navegador. `backend/` publica salud, identidad, onboarding y currículo publicado. Usuarios, sesiones, preferencias y estructura curricular persisten mediante SQLAlchemy y migraciones Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. No hay ejecución de código del estudiante.
+`frontend/` sirve la página inicial, formularios de identidad, cuestionario de preferencias, mapa de aprendizaje y editor de Python. El borrador del editor queda solo en el navegador, y el código se ejecuta también allí. `backend/` publica salud, identidad, onboarding y currículo publicado. Usuarios, sesiones, preferencias y estructura curricular persisten mediante SQLAlchemy y migraciones Alembic. SQLite permite desarrollo local; el URL de PostgreSQL es configurable pero aún no tiene una prueba de integración. El backend no ejecuta ni recibe código del estudiante.
 
 ## Dirección de las dependencias
 
@@ -23,7 +23,7 @@ La interfaz llama contratos HTTP versionados. Los casos de uso futuros contendr�
 
 Identidad: `User`, `AuthSession` y `UserProfile` ya están migrados. Currículo: `LearningPath`, `Module`, `Lesson` y `LessonPrerequisite` ya tienen persistencia. Los ejercicios, intentos y progreso se añadirán cuando existan sus flujos. Los detalles de claves y restricciones están en [data-model.md](data-model.md).
 
-Los contratos de salud, identidad, onboarding y currículo usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). El contrato de ejecución local incluirá identificador de ejercicio, código, versión y modo; devolverá estado, salida, errores, duración y diagnósticos. Su implementación se decidirá en PR-007.
+Los contratos de salud, identidad, onboarding y currículo usan `/api/v1` y se describen en [api-contracts.md](api-contracts.md). El contrato de ejecución local vive en `frontend/src/lib/execution/contract.ts`. La solicitud incluye versión del contrato, identificador de ejecución, modo, `exerciseId` opcional y código; el resultado devuelve estado, salida estándar y de errores, error estructurado con la línea del estudiante, duración, recorte, motor y diagnósticos. `WorkerPythonRunner` lo implementa sobre un Web Worker con Pyodide; la interfaz no depende de Pyodide. Detalles y límites en [ADR-0006](decisions/0006-pyodide-web-worker.md).
 
 ## Seguridad y operación
 
@@ -31,4 +31,4 @@ El backend no ejecuta código del estudiante. Las contraseñas se guardan con Ar
 
 ## Pruebas
 
-PR-003 añadió pruebas de identidad. PR-004 comprueba reglas, migración, propiedad y actualización de perfiles, validación y eliminación en cascada. PR-005 comprueba migración, publicación, orden, paginación y prerrequisitos con una base SQLite temporal. Lint, tipos y build verifican el frontend.
+PR-003 añadió pruebas de identidad. PR-004 comprueba reglas, migración, propiedad y actualización de perfiles, validación y eliminación en cascada. PR-005 comprueba migración, publicación, orden, paginación y prerrequisitos con una base SQLite temporal. Lint, tipos y build verifican el frontend. PR-007 añade `npm test` (`node --test` con eliminación de tipos de Node): el arnés se prueba con Pyodide real en Node y el controlador con un worker simulado.
