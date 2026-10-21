@@ -9,7 +9,7 @@ La persona comienza por su objetivo y avanza por **ruta → módulo → lección
 | Módulo | `GET /api/v1/curriculum/modules/{id}` | Modelo y API disponibles; sin contenido publicado |
 | Lección | `GET /api/v1/curriculum/lessons/{id}` | Modelo y API disponibles, con lista de ejercicios; sin pantalla de lección ni contenido publicado |
 | Práctica | `/practicar`, `/practicar/ejercicios/{id}` | Práctica libre y ejercicios con pruebas automáticas y retroalimentación; sin ejercicios publicados todavía |
-| Progreso | Pendiente | Se implementará con evidencias de ejercicios en PR-009 |
+| Progreso | En curso | PR-009a guarda el último intento en la API; PR-009b lo usará desde la página del ejercicio |
 
 `/aprender` muestra estas etapas con estados honestos y enlaza a las funciones disponibles. La landing page, la cuenta y el resultado del onboarding llevan al mapa. El editor ofrece un ejemplo inicial para experimentar con sintaxis y sangría. El borrador se guarda en el almacenamiento local del navegador y no viaja a la cuenta ni a la API. Desde PR-007, **Ejecutar** corre el código con Pyodide en un Web Worker y la consola muestra la salida real, los errores con su línea, y los cortes por tiempo límite o cancelación. La práctica libre no evalúa respuestas ni registra progreso. Desde PR-008b, cada ejercicio publicado tiene su página con **Comprobar**, que muestra por prueba si es correcta y, si no lo es, qué se esperaba, qué se obtuvo y en qué línea cambia. Todavía no hay ejercicios publicados; `seed_dev` permite probar el flujo en local. Los resultados no se guardan.
 

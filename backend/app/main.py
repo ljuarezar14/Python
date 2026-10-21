@@ -9,6 +9,7 @@ from app.database import build_engine, build_session_factory
 from app.identity.routes import router as identity_router
 from app.identity.security import RateLimiter
 from app.onboarding.routes import router as onboarding_router
+from app.progress.routes import router as progress_router
 from app.settings import Settings
 
 
@@ -24,6 +25,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.state.engine = build_engine(settings.database_url)
     application.state.session_factory = build_session_factory(application.state.engine)
     application.state.rate_limiter = RateLimiter()
+    application.state.progress_limiter = RateLimiter(limit=30)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
@@ -34,6 +36,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(identity_router, prefix="/api/v1/auth", tags=["identity"])
     application.include_router(onboarding_router, prefix="/api/v1/onboarding", tags=["onboarding"])
     application.include_router(curriculum_router, prefix="/api/v1/curriculum", tags=["curriculum"])
+    application.include_router(progress_router, prefix="/api/v1/progress", tags=["progress"])
 
     @application.get("/api/v1/health", response_model=HealthResponse, tags=["system"])
     def health() -> HealthResponse:

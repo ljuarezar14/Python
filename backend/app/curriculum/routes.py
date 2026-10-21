@@ -201,8 +201,8 @@ def get_lesson(lesson_id: str, db: DbSession) -> LessonDetail:
     )
 
 
-@router.get("/exercises/{exercise_id}", response_model=ExerciseDetail)
-def get_exercise(exercise_id: str, db: DbSession) -> ExerciseDetail:
+def visible_exercise(db: DbSession, exercise_id: str) -> Exercise:
+    """Published exercise with valid checks inside a visible lesson, or 404."""
     exercise = db.scalar(
         select(Exercise).where(Exercise.id == exercise_id, Exercise.status == "published")
     )
@@ -212,6 +212,12 @@ def get_exercise(exercise_id: str, db: DbSession) -> ExerciseDetail:
         visible_lesson(db, exercise.lesson_id)
     except HTTPException:
         raise HTTPException(status_code=404, detail="Ejercicio no disponible") from None
+    return exercise
+
+
+@router.get("/exercises/{exercise_id}", response_model=ExerciseDetail)
+def get_exercise(exercise_id: str, db: DbSession) -> ExerciseDetail:
+    exercise = visible_exercise(db, exercise_id)
     return ExerciseDetail(
         id=exercise.id,
         lesson_id=exercise.lesson_id,
