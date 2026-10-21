@@ -33,3 +33,22 @@ Los endpoints siguientes son de solo lectura y no requieren sesión. Los identif
 `limit` admite 1–100 y `offset` debe ser no negativo; valores inválidos devuelven `422`. Los resúmenes incluyen `id`, título, descripción o resumen y `version`. El detalle de módulo incluye `level` y `objectives`. Una lección con prerrequisitos no publicados, de otra ruta, posteriores o circulares no se expone. El contenido Markdown es dato, no HTML procesado por la API.
 
 Desde PR-008a, `checks` es una lista de pruebas `output` (`id`, `description`, `stdin`, `expected_stdout`) o `function` (`id`, `description`, `function_name`, `args`, `expected`). Un ejercicio en borrador, con pruebas que no cumplen el contrato o de una lección no visible responde `404` con `Ejercicio no disponible`. Las pruebas son públicas porque se ejecutan en el navegador; las reglas de comparación están en [ADR-0007](decisions/0007-exercise-checks.md).
+
+## Progreso
+
+Desde PR-009a, cada persona con sesión guarda su último intento por ejercicio. Todas las rutas requieren cookie de sesión (`401` sin ella), y solo devuelven o modifican el progreso de esa persona. El resultado lo calcula el navegador y es **autodeclarado** ([ADR-0008](decisions/0008-self-reported-progress.md)).
+
+| Método y ruta | Entrada | Resultado |
+| --- | --- | --- |
+| `PUT /progress/exercises/{exercise_id}` | Cookie, `Origin` autorizado y JSON del intento | `200` progreso guardado |
+| `GET /progress/exercises/{exercise_id}` | Cookie | `200` último intento; `404` si el ejercicio no es visible o aún no hay intento |
+| `GET /progress` | Cookie | `200` `solved_count` e `items`: hasta 50 ejercicios visibles, del más reciente al más antiguo, sin código |
+
+El intento contiene `exercise_version`, `code` (hasta 100 000 caracteres), `status` (`passed`, `failed` o `timeout`), `passed_count` y `total_count`. Se rechaza con:
+
+- `422` si sobran campos, si los números no cuadran con `status` o si `total_count` no coincide con las pruebas del ejercicio.
+- `409` si `exercise_version` no es la versión actual del ejercicio.
+- `404` si el ejercicio no es visible.
+- `429` si se superan 30 guardados por minuto.
+
+La respuesta del progreso de un ejercicio incluye `exercise_id`, `exercise_version`, `current_version`, `outdated`, `code`, `status`, `passed_count`, `total_count`, `attempts`, `solved`, `solved_at` y `updated_at` (fechas ISO 8601 en UTC). Cada elemento del resumen incluye `exercise_id`, `lesson_id`, `title`, `outdated`, `status`, `passed_count`, `total_count`, `solved` y `updated_at`.

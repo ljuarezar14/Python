@@ -21,4 +21,10 @@ Las claves foráneas garantizan pertenencia y existencia; la API restringe la vi
 
 ## Ejercicios
 
-PR-008a añade `learning_exercises` mediante `0004_exercises`. Cada ejercicio pertenece a una lección (clave foránea con eliminación en cascada) y tiene identificador estable, posición única y positiva dentro de la lección, título, `prompt_markdown`, `starter_code`, `checks` JSON, estado `draft` o `published` y versión positiva. La base no valida la forma de `checks`; lo hace `validate_checks` en `app/curriculum/exercises.py`, y la API oculta los ejercicios cuyas pruebas no cumplen el contrato. No hay tablas de intentos ni de progreso: llegarán con PR-009.
+PR-008a añade `learning_exercises` mediante `0004_exercises`. Cada ejercicio pertenece a una lección (clave foránea con eliminación en cascada) y tiene identificador estable, posición única y positiva dentro de la lección, título, `prompt_markdown`, `starter_code`, `checks` JSON, estado `draft` o `published` y versión positiva. La base no valida la forma de `checks`; lo hace `validate_checks` en `app/curriculum/exercises.py`, y la API oculta los ejercicios cuyas pruebas no cumplen el contrato.
+
+## Progreso
+
+PR-009a añade `exercise_progress` mediante `0005_exercise_progress`. La clave primaria es (`user_id`, `exercise_id`): cada persona tiene como máximo una fila por ejercicio, que se reemplaza en cada intento. Ambas columnas son claves foráneas con eliminación en cascada hacia `users` y `learning_exercises`.
+
+Guarda `exercise_version`, `code`, `last_status` (`passed`, `failed` o `timeout`), `passed_count`, `total_count`, `attempts`, `solved_version`, `solved_at`, `created_at` y `updated_at`. La base exige estados válidos, versión e intentos positivos y `0 ≤ passed_count ≤ total_count`, con `total_count` mayor que cero; la API comprueba además la coherencia con el ejercicio. Un ejercicio está resuelto mientras `solved_version` sea igual a su versión actual. No se guarda el historial de intentos ([ADR-0008](decisions/0008-self-reported-progress.md)).

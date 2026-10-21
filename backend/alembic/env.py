@@ -5,6 +5,7 @@ from app.curriculum import models as curriculum_models  # noqa: F401 - registers
 from app.database import Base, build_engine
 from app.identity import models  # noqa: F401 - registers tables in Base.metadata
 from app.onboarding import models as onboarding_models  # noqa: F401 - registers profile table
+from app.progress import models as progress_models  # noqa: F401 - registers progress table
 from app.settings import Settings
 
 target_metadata = Base.metadata

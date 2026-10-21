@@ -2,7 +2,7 @@
 
 **El conocimiento echa raíces cuando lo aplicas.**
 
-PyRaíz está en su primera etapa de desarrollo. El registro, las sesiones y el cuestionario inicial funcionan en local. Ya puedes ver el mapa de aprendizaje, escribir Python en un editor que guarda un borrador en este navegador y ejecutarlo allí mismo con Pyodide. La API tiene el modelo curricular, pero el catálogo sigue vacío hasta publicar contenido revisado. La evaluación de ejercicios y el progreso llegarán en PRs posteriores. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
+PyRaíz está en su primera etapa de desarrollo. El registro, las sesiones y el cuestionario inicial funcionan en local. Ya puedes ver el mapa de aprendizaje, escribir Python en un editor que guarda un borrador en este navegador y ejecutarlo allí mismo con Pyodide. La API tiene el modelo curricular, pero el catálogo sigue vacío hasta publicar contenido revisado. Los ejercicios se comprueban en el navegador con pruebas automáticas, y la API ya puede guardar el último intento de cada persona; la interfaz que lo usa llegará en PR-009b. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
 
 ## Requisitos
 
@@ -67,6 +67,7 @@ uv run ruff format --check .
 - [Decisión del editor](docs/decisions/0005-codemirror-editor.md)
 - [Ejecución con Pyodide en Web Worker](docs/decisions/0006-pyodide-web-worker.md)
 - [Ejercicios con pruebas públicas](docs/decisions/0007-exercise-checks.md)
+- [Progreso autodeclarado por ejercicio](docs/decisions/0008-self-reported-progress.md)
 - [Roadmap de PRs](docs/roadmap.md)
 - [Decisión arquitectónica inicial](docs/decisions/0001-modular-monolith.md)
 

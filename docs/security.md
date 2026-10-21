@@ -40,3 +40,11 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - La petición a la API se hace con `credentials: "omit"`: leer un ejercicio público no envía la cookie de sesión.
 - El enunciado se interpreta con un subconjunto mínimo de Markdown que produce elementos de React; el HTML incluido en el texto se muestra literalmente. Salida, valores esperados y tracebacks se muestran como texto.
 - El borrador de cada ejercicio se guarda solo en el navegador, con la misma advertencia para equipos compartidos que la práctica libre.
+
+## Progreso en PR-009a
+
+- **El progreso es autodeclarado.** El navegador envía el resultado y nada impide una petición con un `passed` falso. La API solo rechaza datos incoherentes: versión distinta, número de pruebas que no coincide o estado que contradice los números. No debe usarse para acreditar, premiar ni comparar personas ([ADR-0008](decisions/0008-self-reported-progress.md)).
+- Las tres rutas exigen sesión. La persona se obtiene siempre de la cookie, nunca del cuerpo ni de la URL, y las consultas filtran por ella. Guardar exige además un `Origin` autorizado, como el resto de escrituras con cookie.
+- El backend guarda el código como texto y **nunca lo ejecuta**. Se limita a 100 000 caracteres, y los guardados a 30 por minuto y persona, con el mismo limitador por proceso que el acceso (no compartido entre procesos).
+- El código guardado es dato personal: solo lo devuelve `GET /progress/exercises/{id}` a su autor, no aparece en el resumen y se borra en cascada con la cuenta o el ejercicio. No hay todavía flujo de eliminación de cuenta ni exportación de datos; ambos deberán incluir esta tabla.
+- Si un ejercicio deja de ser visible, su progreso se conserva pero no se expone hasta que vuelva a serlo.
