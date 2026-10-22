@@ -10,11 +10,13 @@ id = "primeros-pasos"
 position = 1
 level = "basic"
 title = "Primeros pasos"
-description = "Escribe y ejecuta tus primeros programas, haz cálculos y aprende a leer los mensajes de error."
+description = "Escribe tus primeros programas: muestra mensajes, haz cálculos, guarda datos en variables y pide datos a la persona."
 objectives = [
   "Mostrar mensajes en la pantalla con print()",
   "Hacer cálculos con números",
+  "Guardar datos en variables y combinarlos en textos",
+  "Pedir datos con input() y convertirlos en números",
   "Reconocer los errores más frecuentes al escribir un programa",
 ]
 status = "published"
-version = 2
+version = 3

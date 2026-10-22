@@ -1,0 +1,128 @@
+# Lección y ejercicios. Cualquier cambio en un registro exige subir su «version».
+# «solution» no se carga en la base: sirve para comprobar las pruebas con
+# `npm run check:content` desde frontend/.
+id = "trabajar-con-textos"
+module = "primeros-pasos"
+position = 4
+title = "Trabajar con textos"
+summary = "Une textos, combina texto con números y construye mensajes con f-strings."
+objectives = [
+  "Unir textos con +",
+  "Construir mensajes con f-strings",
+  "Convertir un número en texto con str()",
+  "Reconocer un TypeError al mezclar texto y números",
+]
+prerequisites = ["guardar-datos-en-variables"]
+status = "published"
+version = 1
+content = '''
+# Unir textos
+
+El signo `+` une dos textos en uno. Python no añade espacios: si los necesitas, escríbelos tú.
+
+```python
+nombre = "Ana"
+apellido = "López"
+print(nombre + " " + apellido)
+```
+
+La pantalla muestra `Ana López`. Sin el `" "` del medio, mostraría `AnaLópez`.
+
+# Texto y números no se suman
+
+Un texto y un número son tipos de datos distintos, y `+` no puede unirlos:
+
+```python
+edad = 15
+print("Tengo " + edad + " años")
+```
+
+Este programa produce un `TypeError`. Una solución es convertir el número en texto con `str()`: `"Tengo " + str(edad) + " años"` muestra `Tengo 15 años`.
+
+# Mensajes con f-strings
+
+Una **f-string** es un texto con una `f` antes de las comillas. Dentro, lo que escribes entre llaves se reemplaza por su valor, sea texto o número:
+
+```python
+producto = "pan"
+precio = 2
+print(f"El {producto} cuesta {precio} euros")
+```
+
+La pantalla muestra `El pan cuesta 2 euros`. Las f-strings son la forma más cómoda de mezclar texto y datos, y no necesitan `str()`.
+
+# Errores frecuentes
+
+- Olvidar la `f` antes de las comillas: la pantalla muestra las llaves tal cual, como `El {producto} cuesta…`.
+- Olvidar los espacios al unir con `+`: las palabras quedan pegadas.
+- Sumar un texto y un número con `+` produce un `TypeError`. Usa una f-string o `str()`.
+'''
+
+[[exercises]]
+id = "textos-unir"
+position = 1
+title = "Nombre completo"
+prompt = '''
+Muestra el nombre completo uniendo las variables `nombre` y `apellido` con `+`, con un espacio entre ellas.
+'''
+starter_code = '''
+nombre = "Ana"
+apellido = "López"
+# Une nombre y apellido con un espacio entre ellos
+'''
+solution = '''
+nombre = "Ana"
+apellido = "López"
+print(nombre + " " + apellido)
+'''
+checks = [
+  { kind = "output", id = "completo", description = "Muestra Ana López", expected_stdout = "Ana López\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "textos-fstring"
+position = 2
+title = "Un mensaje con f-string"
+prompt = '''
+Usa una f-string con las variables `producto` y `precio` para mostrar exactamente:
+
+`El pan cuesta 2 euros`
+'''
+starter_code = '''
+producto = "pan"
+precio = 2
+# Muestra el mensaje con una f-string
+'''
+solution = '''
+producto = "pan"
+precio = 2
+print(f"El {producto} cuesta {precio} euros")
+'''
+checks = [
+  { kind = "output", id = "mensaje", description = "Muestra El pan cuesta 2 euros", expected_stdout = "El pan cuesta 2 euros\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "textos-corregir-error"
+position = 3
+title = "Corrige el TypeError"
+prompt = '''
+Este programa quiere mostrar `Tengo 15 años`, pero produce un `TypeError`. Pulsa **Comprobar** para ver el error y corrígelo sin cambiar el valor de `edad`.
+'''
+starter_code = '''
+edad = 15
+print("Tengo " + edad + " años")
+'''
+solution = '''
+edad = 15
+print(f"Tengo {edad} años")
+'''
+checks = [
+  { kind = "output", id = "frase", description = "Muestra Tengo 15 años", expected_stdout = "Tengo 15 años\n" },
+]
+status = "published"
+version = 1

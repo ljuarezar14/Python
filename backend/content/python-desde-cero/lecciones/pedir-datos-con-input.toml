@@ -1,0 +1,127 @@
+# Lección y ejercicios. Cualquier cambio en un registro exige subir su «version».
+# «solution» no se carga en la base: sirve para comprobar las pruebas con
+# `npm run check:content` desde frontend/.
+id = "pedir-datos-con-input"
+module = "primeros-pasos"
+position = 5
+title = "Pedir datos con input()"
+summary = "Haz programas que preguntan: lee lo que escribe la persona y conviértelo en número para calcular."
+objectives = [
+  "Leer un dato con input() y guardarlo en una variable",
+  "Convertir el texto leído en número con int()",
+  "Combinar input(), cálculos y f-strings en un programa",
+]
+prerequisites = ["trabajar-con-textos"]
+status = "published"
+version = 1
+content = '''
+# Preguntar a la persona
+
+`input()` detiene el programa, espera a que la persona escriba algo y devuelve lo que escribió. Lo habitual es guardarlo en una variable:
+
+```python
+nombre = input("¿Cómo te llamas? ")
+print(f"Hola, {nombre}")
+```
+
+El texto entre paréntesis es la **pregunta** que ve la persona. Si escribe `Ana`, la pantalla muestra `Hola, Ana`.
+
+# Cómo se prueba en PyRaíz
+
+En los ejercicios de esta lección, cada prueba escribe los datos por ti y comprueba lo que muestra tu programa. La pregunta de `input()` no cuenta como parte de la salida, así que puedes escribir la que quieras.
+
+En el **Editor** de práctica libre, `input()` todavía no está disponible: practica esta lección con los ejercicios.
+
+# input() siempre devuelve texto
+
+Aunque la persona escriba un número, `input()` lo devuelve como texto. Por eso este programa no hace lo que parece:
+
+```python
+numero = input("Escribe un número: ")
+print(numero * 2)
+```
+
+Si la persona escribe `4`, la pantalla muestra `44`: multiplicar un texto por 2 lo repite. Para calcular, convierte el texto en número entero con `int()`:
+
+```python
+numero = int(input("Escribe un número: "))
+print(numero * 2)
+```
+
+Ahora la pantalla muestra `8`.
+
+# Errores frecuentes
+
+- Calcular con lo que devuelve `input()` sin convertirlo: `+` une textos (`"2" + "3"` da `"23"`) y `*` los repite.
+- Si la persona escribe algo que no es un número entero, como `hola` o `2.5`, `int()` produce un `ValueError`.
+- Olvidar cerrar los dos paréntesis en `int(input("…"))` produce un `SyntaxError`.
+'''
+
+[[exercises]]
+id = "input-saludo"
+position = 1
+title = "Un saludo personal"
+prompt = '''
+Lee un nombre con `input()` y muestra `Hola, ` seguido del nombre. Por ejemplo, si la persona escribe `Ana`, muestra `Hola, Ana`.
+'''
+starter_code = '''
+nombre = input("¿Cómo te llamas? ")
+# Saluda usando la variable nombre
+'''
+solution = '''
+nombre = input("¿Cómo te llamas? ")
+print(f"Hola, {nombre}")
+'''
+checks = [
+  { kind = "output", id = "ana", description = "Saluda a Ana", stdin = ["Ana"], expected_stdout = "Hola, Ana\n" },
+  { kind = "output", id = "mateo", description = "Saluda a Mateo", stdin = ["Mateo"], expected_stdout = "Hola, Mateo\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "input-doble"
+position = 2
+title = "El doble de un número"
+prompt = '''
+Este programa debería mostrar el doble del número que escribe la persona, pero si escribe `4` muestra `44`. Corrígelo para que muestre `8`.
+'''
+starter_code = '''
+numero = input("Escribe un número: ")
+print(numero * 2)
+'''
+solution = '''
+numero = int(input("Escribe un número: "))
+print(numero * 2)
+'''
+checks = [
+  { kind = "output", id = "cuatro", description = "El doble de 4 es 8", stdin = ["4"], expected_stdout = "8\n" },
+  { kind = "output", id = "quince", description = "El doble de 15 es 30", stdin = ["15"], expected_stdout = "30\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "input-edad-futura"
+position = 3
+title = "Dentro de 10 años"
+prompt = '''
+Lee la edad de la persona y muestra cuántos años tendrá dentro de 10 años, con este formato:
+
+`Dentro de 10 años tendrás 25 años`
+
+(ese es el resultado si escribe `15`).
+'''
+starter_code = '''
+# Lee la edad, súmale 10 y muestra el mensaje
+'''
+solution = '''
+edad = int(input("¿Cuántos años tienes? "))
+print(f"Dentro de 10 años tendrás {edad + 10} años")
+'''
+checks = [
+  { kind = "output", id = "quince", description = "Con 15 años", stdin = ["15"], expected_stdout = "Dentro de 10 años tendrás 25 años\n" },
+  { kind = "output", id = "treinta", description = "Con 30 años", stdin = ["30"], expected_stdout = "Dentro de 10 años tendrás 40 años\n" },
+]
+status = "published"
+version = 1
