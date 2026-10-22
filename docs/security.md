@@ -61,3 +61,10 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - El Markdown de lecciones y enunciados se convierte en elementos de React a partir de texto, sin `dangerouslySetInnerHTML`. HTML, `<script>`, imágenes y enlaces (incluidos `javascript:`) se muestran como texto. Las pruebas unitarias y la prueba de punta a punta lo comprueban con contenido malicioso.
 - Los bloques de código son regiones con foco de teclado para poder desplazarlos; su texto no se ejecuta.
 - La lista de ejercicios de una lección consulta el progreso con la cookie solo después de comprobar con la primera consulta que hay sesión.
+
+## Contenido en archivos (PR-010b)
+
+- El contenido se publica con `python -m app.curriculum.content` desde archivos revisados en un PR. No hay endpoints de escritura: quien ejecuta el comando necesita acceso al servidor y a su base.
+- La carga valida todo antes de escribir y usa una sola transacción; nunca borra registros, así que el progreso guardado no se pierde por un cambio de contenido.
+- Las soluciones de referencia no se guardan en la base ni salen por la API. Se ejecutan solo en `npm run check:content`, una herramienta de desarrollo en Node; **el backend no ejecuta código**.
+- Las soluciones y las pruebas son públicas en el repositorio. Como indica ADR-0007, la evaluación es formativa y no acredita.

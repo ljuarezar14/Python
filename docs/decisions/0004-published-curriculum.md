@@ -18,7 +18,7 @@ El contenido de una lección se almacena como Markdown. Su representación segur
 
 ## Consecuencias
 
-La base recién migrada devuelve un catálogo vacío. PR-010 aportará contenido revisado. Las tablas de ejercicios y progreso quedan fuera de este modelo. Las versiones se exponen para que clientes futuros detecten cambios, pero todavía no conservan historial de revisiones. Antes de publicar contenido real habrá que probar el flujo editorial, los prerrequisitos, la accesibilidad y la renderización de Markdown.
+La base recién migrada devuelve un catálogo vacío hasta cargar el contenido revisado con el comando de ADR-0009. Las tablas de ejercicios y progreso quedan fuera de este modelo. Las versiones se exponen para que clientes futuros detecten cambios, pero todavía no conservan historial de revisiones. Antes de publicar contenido real habrá que probar el flujo editorial, los prerrequisitos, la accesibilidad y la renderización de Markdown.
 
 ## Pantallas del catálogo (PR-010a)
 

@@ -1,0 +1,19 @@
+# Ruta y módulos. Cualquier cambio en un registro exige subir su «version».
+id = "python-desde-cero"
+title = "Python desde cero"
+description = "Para quien nunca ha programado: escribe tus primeros programas en Python paso a paso, con ejercicios que se comprueban en tu navegador."
+status = "published"
+version = 1
+
+[[modules]]
+id = "primeros-pasos"
+position = 1
+level = "basic"
+title = "Primeros pasos"
+description = "Escribe y ejecuta tus primeros programas, y aprende a leer los mensajes de error."
+objectives = [
+  "Mostrar mensajes en la pantalla con print()",
+  "Reconocer los errores más frecuentes al escribir un programa",
+]
+status = "published"
+version = 1

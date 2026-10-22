@@ -1,0 +1,127 @@
+# Lección y ejercicios. Cualquier cambio en un registro exige subir su «version».
+# «solution» no se carga en la base: sirve para comprobar las pruebas con
+# `npm run check:content` desde frontend/.
+id = "mostrar-mensajes"
+module = "primeros-pasos"
+position = 1
+title = "Mostrar mensajes con print()"
+summary = "Escribe tu primer programa y haz que Python muestre mensajes en la pantalla."
+objectives = [
+  "Usar print() para mostrar texto",
+  "Escribir texto entre comillas",
+  "Mostrar varias líneas y varios valores",
+  "Reconocer un SyntaxError y un NameError",
+]
+status = "published"
+version = 1
+content = '''
+# Tu primer programa
+
+Un **programa** es una lista de instrucciones que Python sigue en orden, de arriba abajo. La primera instrucción que vas a usar es `print()`, que muestra un mensaje en la pantalla:
+
+```python
+print("Hola, mundo")
+```
+
+Al ejecutar este programa, la pantalla muestra `Hola, mundo`.
+
+# Cómo se escribe
+
+- `print` va en minúsculas.
+- Lo que quieres mostrar va entre paréntesis.
+- El texto va entre comillas, dobles (`"Hola"`) o simples (`'Hola'`). Usa el mismo tipo al abrir y al cerrar.
+
+Un texto entre comillas se llama **cadena de texto**. Las comillas no aparecen en la pantalla: solo marcan dónde empieza y dónde termina el texto.
+
+# Una línea por cada print()
+
+Cada `print()` muestra su mensaje en una línea nueva:
+
+```python
+print("Primera línea")
+print("Segunda línea")
+```
+
+# Varios valores a la vez
+
+Puedes dar a `print()` varios valores separados por comas. Python los muestra en la misma línea, con un espacio entre ellos:
+
+```python
+print("Mi gato tiene", 4, "patas")
+```
+
+La pantalla muestra `Mi gato tiene 4 patas`. Los números se escriben sin comillas.
+
+# Errores frecuentes
+
+- Si olvidas cerrar unas comillas o un paréntesis, Python muestra un `SyntaxError` y no ejecuta nada.
+- Si escribes `Print` o `prin`, Python no reconoce la instrucción y muestra un `NameError`.
+- El mensaje de error indica en qué línea está el problema: empieza por revisar esa línea.
+
+Prueba los ejemplos en el **Editor** y cambia los mensajes antes de pasar a los ejercicios.
+'''
+
+[[exercises]]
+id = "mensajes-hola-mundo"
+position = 1
+title = "Tu primer mensaje"
+prompt = '''
+Escribe un programa que muestre exactamente `¡Hola, mundo!`.
+
+Fíjate en los signos de exclamación, la coma y las mayúsculas: la prueba compara el texto tal cual.
+'''
+starter_code = '''
+# Escribe tu programa debajo de esta línea
+'''
+solution = '''
+print("¡Hola, mundo!")
+'''
+checks = [
+  { kind = "output", id = "saludo", description = "Muestra ¡Hola, mundo!", expected_stdout = "¡Hola, mundo!\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "mensajes-dos-lineas"
+position = 2
+title = "Dos líneas"
+prompt = '''
+Muestra estas dos líneas, en este orden:
+
+1. `Buenos días`
+2. `Hoy aprendo Python`
+'''
+starter_code = '''
+# Usa un print() para cada línea
+'''
+solution = '''
+print("Buenos días")
+print("Hoy aprendo Python")
+'''
+checks = [
+  { kind = "output", id = "dos-lineas", description = "Muestra las dos líneas en orden", expected_stdout = "Buenos días\nHoy aprendo Python\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "mensajes-varios-valores"
+position = 3
+title = "Texto y números"
+prompt = '''
+Muestra `Mi perro tiene 4 patas` con un solo `print()` que reciba tres valores separados por comas: el texto `Mi perro tiene`, el número `4` sin comillas y el texto `patas`.
+
+La prueba solo compara lo que aparece en la pantalla; el objetivo es que practiques las comas.
+'''
+starter_code = '''
+print()
+'''
+solution = '''
+print("Mi perro tiene", 4, "patas")
+'''
+checks = [
+  { kind = "output", id = "frase", description = "Muestra Mi perro tiene 4 patas", expected_stdout = "Mi perro tiene 4 patas\n" },
+]
+status = "published"
+version = 1
