@@ -1,6 +1,7 @@
 """Learning preference rules and authenticated persistence."""
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from alembic.config import Config
@@ -188,6 +189,8 @@ def test_upgrade_keeps_existing_account_and_session(
     command.upgrade(config, "0001_identity")
     settings = Settings(database_url=database_url, cors_origins=(ORIGIN,), cookie_secure=False)
     old_app = create_app(settings)
+    # El código actual guarda los límites en una tabla que el esquema 0001 no tenía.
+    old_app.state.rate_limiter = SimpleNamespace(allow=lambda key: True)
     with TestClient(old_app) as old_client:
         register(old_client, "existing@example.org")
         token = old_client.cookies.get("pyraiz_session")

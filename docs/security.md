@@ -4,8 +4,8 @@
 - Cada sesión usa un token aleatorio opaco. Solo su hash SHA-256 se conserva en la base de datos. Caduca a los siete días y se revoca al cerrar sesión.
 - La cookie es HttpOnly, SameSite Lax y usa `Secure` cuando `PYRAIZ_COOKIE_SECURE=true`. En producción se exige esta opción mediante `PYRAIZ_ENV=production`; el sitio debe publicarse por HTTPS.
 - CORS permite los orígenes configurados. Los POST de identidad comprueban `Origin` contra `PYRAIZ_CORS_ORIGINS` y `PYRAIZ_API_ORIGIN`, sin confiar en el encabezado `Host`. Los próximos endpoints que modifiquen datos deberán aplicar la misma política o un mecanismo CSRF más fuerte antes de publicarse.
-- Un límite de 10 intentos por minuto y dirección IP protege registro y acceso en un solo proceso. Antes de usar varios procesos o publicar el servicio se necesita un límite compartido en el proxy o servicio de entrada. No se confía en `X-Forwarded-For` proporcionado por el cliente.
-- Las sesiones vencidas se purgan al crear otra sesión. En operación prolongada deberá añadirse una limpieza programada y supervisada.
+- Un límite de 10 intentos por minuto y dirección IP protege registro y acceso. Desde PR-013a se guarda en la base y lo comparten todos los procesos (ADR-0010). `X-Forwarded-For` solo se acepta del proxy propio, configurado con `--forwarded-allow-ips` ([deployment.md](deployment.md)).
+- Las sesiones vencidas se purgan al crear otra sesión y con `python -m app.identity.cleanup`, que debe programarse a diario en producción.
 
 No se han implementado recuperación de contraseña, verificación de correo, eliminación de cuenta ni herramientas administrativas. La autenticación no equivale a autorización de contenido: cada futura ruta protegida debe comprobar al usuario y, cuando corresponda, el rol en el servidor. La integración con PostgreSQL y la configuración HTTPS requieren pruebas antes de desplegar.
 
@@ -68,3 +68,13 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - La carga valida todo antes de escribir y usa una sola transacción; nunca borra registros, así que el progreso guardado no se pierde por un cambio de contenido.
 - Las soluciones de referencia no se guardan en la base ni salen por la API. Se ejecutan solo en `npm run check:content`, una herramienta de desarrollo en Node; **el backend no ejecuta código**.
 - Las soluciones y las pruebas son públicas en el repositorio. Como indica ADR-0007, la evaluación es formativa y no acredita.
+
+## Backend en producción (PR-013a)
+
+- Con `PYRAIZ_ENV=production`, la API se niega a arrancar si la cookie no es `Secure`, la base es SQLite, algún origen permitido no es `https://` (o es `*`) o el origen de la API no es `https://`.
+- Cabeceras en todas las respuestas: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` y `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`. En producción, además, `Strict-Transport-Security: max-age=31536000`.
+- `Cache-Control: no-store` en identidad, onboarding y progreso, para que ningún navegador ni proxy guarde datos personales.
+- `/docs`, `/redoc` y `/openapi.json` se desactivan en producción.
+- El límite de intentos se comparte entre procesos y guarda solo hashes de las claves (ADR-0010).
+- Las pruebas con PostgreSQL real cubren migraciones, el recorrido de una persona, el límite compartido y la limpieza. Se ejecutan con `uv run --group postgres pytest tests/test_postgres.py`.
+- **Pendiente:** las cabeceras del frontend (PR-013b), el proveedor con HTTPS, copias de seguridad y supervisión (PR-014), y la recuperación de contraseña, que queda fuera del piloto.

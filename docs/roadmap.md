@@ -14,6 +14,6 @@ Cada PR requiere criterios de aceptación, pruebas pertinentes, revisión de seg
 10. **PR-010:** contenido básico en entregas pedagógicas pequeñas: **PR-010a** (pantallas de ruta, módulo y lección, con Markdown seguro), **PR-010b** (carga de contenido revisado desde archivos y primera lección real) **PR-010c** (lección de cálculos) y **PR-010d** (variables, textos e `input()`, que completan el primer módulo). Para llegar antes a un piloto, se priorizan la preparación para producción y el despliegue; proyectos (PR-011), administración (PR-012) y más módulos quedan para después del piloto.
 11. **PR-011:** proyectos integradores.
 12. **PR-012a en adelante:** administración según los modelos existentes.
-13. **PR-013 a PR-016:** auditorías, despliegue y piloto, con alcance ajustado a evidencia de uso.
+13. **PR-013 a PR-016:** auditorías, despliegue y piloto, con alcance ajustado a evidencia de uso. PR-013 se divide en **PR-013a** (backend para producción) y **PR-013b** (cabeceras del frontend y accesibilidad).
 
 Dependencias principales: el evaluador necesita ejecución y ejercicios definidos; el progreso necesita resultados claros; la administración necesita contenido y permisos; el piloto necesita los flujos críticos probados.

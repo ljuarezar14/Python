@@ -11,6 +11,8 @@ El registro siempre asigna `student`. No existe una API para elevar privilegios.
 
 PR-004 añade `user_profiles` mediante la migración `0002_user_profiles`. `user_id` es clave primaria y foránea a `users`, por lo que cada usuario tiene como máximo un perfil editable. Guarda `goal`, `experience`, `weekly_minutes`, `interests`, `example_context`, `known_topics` y `updated_at`. El objetivo, experiencia, tiempo y contexto tienen restricciones en la base; las listas JSON se validan en la API. La recomendación se calcula al consultar y no se almacena como dato duplicado.
 
+PR-013a añade `rate_limit_counters` mediante la migración `0006_rate_limit_counters`: `key_hash` (SHA-256 de ámbito y clave, nunca la IP en claro), `window_start` y `hits`, con clave primaria compuesta, `hits > 0` e índice por ventana. Comparte el límite de intentos entre procesos (ADR-0010). `python -m app.identity.cleanup` borra las sesiones vencidas y los contadores de más de un día.
+
 La eliminación en cascada de `user_profiles` y `auth_sessions` se aplica también en SQLite mediante `PRAGMA foreign_keys=ON`. La eliminación de cuenta, recuperación de contraseña y verificación de correo requieren flujos propios antes de añadir más tablas.
 
 ## Currículo
