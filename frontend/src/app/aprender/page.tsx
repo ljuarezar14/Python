@@ -32,8 +32,10 @@ const stages = [
   {
     number: "05",
     title: "Progreso",
-    description: "Tus soluciones aprobadas y proyectos mostrarán lo que has aprendido.",
-    status: "En desarrollo",
+    description: "Con tu cuenta, cada ejercicio que compruebes guarda tu último intento y marca los que resuelves, para que retomes tu trabajo desde cualquier dispositivo. Los proyectos llegarán más adelante.",
+    status: "Disponible con tu cuenta",
+    href: "/cuenta",
+    action: "Ver mi progreso",
   },
 ] as const;
 

@@ -1,6 +1,6 @@
 # ADR-0008 — Progreso autodeclarado por ejercicio
 
-Estado: aceptado. PR-009a implementa el modelo y la API; PR-009b, la interfaz.
+Estado: aceptado. PR-009a implementó el modelo y la API; PR-009b, el guardado desde la página del ejercicio y el resumen en la cuenta.
 
 ## Contexto
 
@@ -44,3 +44,11 @@ El código guardado es dato personal: solo lo lee su autor y no aparece en el re
 ## Consecuencias
 
 La interfaz puede ofrecer «continuar donde lo dejaste» y contar ejercicios resueltos. Los indicadores de dominio, insignias o rachas quedan fuera; si llegan, deberán decir que se basan en resultados autodeclarados.
+
+## Interfaz (PR-009b)
+
+- La página del ejercicio consulta el último intento al abrirse. Sin sesión, invita a ingresar y no intenta guardar.
+- Tras cada **Comprobar** con resultado `passed`, `failed` o `timeout`, guarda el código evaluado. Si el ejercicio cambió desde que se abrió la página (`409`), pide recargar.
+- El borrador local sigue siendo la fuente del editor. Si el intento guardado es distinto, se ofrece **Cargar mi último intento guardado**; si el borrador tiene cambios propios, se pide confirmación antes de reemplazarlo.
+- **Tu cuenta** muestra el número de ejercicios resueltos y los cinco más recientes, con enlace a cada uno.
+- Todas las vistas recuerdan que el resultado lo calcula el navegador y no acredita.

@@ -2,7 +2,7 @@
 
 **El conocimiento echa raíces cuando lo aplicas.**
 
-PyRaíz está en su primera etapa de desarrollo. El registro, las sesiones y el cuestionario inicial funcionan en local. Ya puedes ver el mapa de aprendizaje, escribir Python en un editor que guarda un borrador en este navegador y ejecutarlo allí mismo con Pyodide. La API tiene el modelo curricular, pero el catálogo sigue vacío hasta publicar contenido revisado. Los ejercicios se comprueban en el navegador con pruebas automáticas, y la API ya puede guardar el último intento de cada persona; la interfaz que lo usa llegará en PR-009b. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
+PyRaíz está en su primera etapa de desarrollo. El registro, las sesiones y el cuestionario inicial funcionan en local. Ya puedes ver el mapa de aprendizaje, escribir Python en un editor que guarda un borrador en este navegador y ejecutarlo allí mismo con Pyodide. La API tiene el modelo curricular, pero el catálogo sigue vacío hasta publicar contenido revisado. Los ejercicios se comprueban en el navegador con pruebas automáticas, y, con una cuenta, tu último intento se guarda para retomarlo desde otro dispositivo. **Tu cuenta** muestra los ejercicios resueltos y los recientes. La [visión y el alcance inicial](docs/mvp-scope.md) explican el plan.
 
 ## Requisitos
 
