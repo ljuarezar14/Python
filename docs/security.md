@@ -23,7 +23,7 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - Límites: 100 000 caracteres de código, 20 000 de salida (se recorta en el worker y otra vez en el hilo principal), 10 s por ejecución y 60 s de carga. Cancelar o agotar el tiempo termina el worker. **No hay límite de memoria**: un programa puede reservar memoria hasta que el navegador cierre la pestaña. Las ejecuciones se miden en tiempo real, no en CPU.
 - La salida y el traceback se muestran como texto con React, sin interpretar HTML.
 - Riesgo de ingeniería social: alguien puede pedir a una persona que pegue y ejecute un programa. Su alcance queda en el worker descrito arriba, dentro del navegador de esa persona.
-- Una futura política CSP deberá permitir `'wasm-unsafe-eval'` y `worker-src 'self'`. Cualquier evaluación de alta integridad requerirá un evaluador en el servidor con aislamiento por proceso y su propio análisis de amenazas; queda fuera de este PR.
+- La CSP de PR-013b permite `'wasm-unsafe-eval'` solo en el worker y `worker-src 'self'` en las páginas. Cualquier evaluación de alta integridad requerirá un evaluador en el servidor con aislamiento por proceso y su propio análisis de amenazas; queda fuera de este PR.
 
 ## Ejercicios en PR-008a
 
@@ -77,4 +77,13 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - `/docs`, `/redoc` y `/openapi.json` se desactivan en producción.
 - El límite de intentos se comparte entre procesos y guarda solo hashes de las claves (ADR-0010).
 - Las pruebas con PostgreSQL real cubren migraciones, el recorrido de una persona, el límite compartido y la limpieza. Se ejecutan con `uv run --group postgres pytest tests/test_postgres.py`.
-- **Pendiente:** las cabeceras del frontend (PR-013b), el proveedor con HTTPS, copias de seguridad y supervisión (PR-014), y la recuperación de contraseña, que queda fuera del piloto.
+- **Pendiente:** el proveedor con HTTPS, copias de seguridad y supervisión (PR-014), y la recuperación de contraseña, que queda fuera del piloto.
+
+## Frontend en producción (PR-013b)
+
+- **CSP con nonce por petición** ([ADR-0011](decisions/0011-frontend-csp-nonces.md)): solo se ejecutan los scripts de Next.js que llevan el nonce. Sin `'unsafe-inline'` para scripts y sin `'unsafe-eval'` en producción. `connect-src` admite solo el propio sitio y la API; `object-src 'none'`, `base-uri 'none'`, `frame-ancestors 'none'`.
+- Los estilos en línea sí se permiten (CodeMirror y React los necesitan); no ejecutan código.
+- El worker de Python y los archivos de Pyodide llevan su propia política: WebAssembly (`'wasm-unsafe-eval'`) y conexiones al mismo origen, nada más. **Sigue sin ser una sandbox:** es una capa más sobre el sombreado de APIs de PR-007.
+- En todas las respuestas: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Cross-Origin-Opener-Policy: same-origin` y `Permissions-Policy`, que desactiva cámara, micrófono, ubicación, pagos y USB. En la compilación de producción, HSTS. Sin `X-Powered-By`.
+- Accesibilidad: auditoría con axe-core (WCAG 2.2 A y AA y buenas prácticas) en 11 páginas. Se corrigieron dos problemas: el contraste de tres colores del resaltado de código y los nombres repetidos de los bloques de código de una lección.
+- `npm audit` avisa de `braces` (alta), sin versión corregida publicada. Llega solo por las herramientas de lint (`eslint-config-next`) y no forma parte de lo que se publica: `npm audit --omit=dev` no encuentra vulnerabilidades.

@@ -12,6 +12,8 @@ frontend/.next/
 frontend/public/pyodide/
 frontend/public/execution/
 frontend/tsconfig.tsbuildinfo
+# next dev lo genera para asistentes de código; no forma parte del proyecto.
+frontend/AGENTS.md
 .env
 .env.local
 frontend/.env.local

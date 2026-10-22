@@ -39,13 +39,39 @@ export default function PythonCodeEditor({ value, onChange, onRun }: PythonCodeE
     let disposed = false;
     async function loadEditor() {
       try {
-        const [{ python }, { EditorState, Prec }, { EditorView, keymap }, { basicSetup }] = await Promise.all([
+        const [
+          { python },
+          { HighlightStyle, syntaxHighlighting },
+          { tags },
+          { EditorState, Prec },
+          { EditorView, keymap },
+          { basicSetup },
+        ] = await Promise.all([
           import("@codemirror/lang-python"),
+          import("@codemirror/language"),
+          import("@lezer/highlight"),
           import("@codemirror/state"),
           import("@codemirror/view"),
           import("codemirror"),
         ]);
         if (disposed || !hostRef.current) return;
+        // Colores del resaltado por defecto de CodeMirror, salvo tres que no llegaban a 4,5:1
+        // sobre el fondo del editor y la línea activa (WCAG AA). Sustituye al de basicSetup.
+        const highlightStyle = HighlightStyle.define([
+          { tag: tags.keyword, color: "#708" },
+          { tag: [tags.atom, tags.bool, tags.url, tags.contentSeparator, tags.labelName], color: "#219" },
+          { tag: [tags.literal, tags.inserted], color: "#164" },
+          { tag: [tags.string, tags.deleted], color: "#a11" },
+          { tag: [tags.regexp, tags.escape, tags.special(tags.string)], color: "#a33500" },
+          { tag: tags.definition(tags.variableName), color: "#00f" },
+          { tag: tags.local(tags.variableName), color: "#30a" },
+          { tag: [tags.typeName, tags.namespace], color: "#06603e" },
+          { tag: tags.className, color: "#167" },
+          { tag: [tags.special(tags.variableName), tags.macroName], color: "#256" },
+          { tag: tags.definition(tags.propertyName), color: "#00c" },
+          { tag: tags.comment, color: "#940" },
+          { tag: tags.invalid, color: "#b00" },
+        ]);
         const editorTheme = EditorView.theme({
           "&": {
             minHeight: "20rem",
@@ -87,6 +113,7 @@ export default function PythonCodeEditor({ value, onChange, onRun }: PythonCodeE
             ),
             basicSetup,
             python(),
+            syntaxHighlighting(highlightStyle),
             EditorState.tabSize.of(4),
             EditorView.lineWrapping,
             EditorView.contentAttributes.of({ "aria-label": "Editor de código Python" }),

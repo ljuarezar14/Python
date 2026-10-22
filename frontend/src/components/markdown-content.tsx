@@ -21,9 +21,11 @@ const HEADING_STYLES = {
 
 // Solo crea elementos de React a partir de texto: nunca inserta HTML.
 export function MarkdownContent({ markdown }: { markdown: string }) {
+  const blocks = parseMarkdown(markdown);
+  const codeIndexes = blocks.flatMap((block, index) => (block.kind === "code" ? [index] : []));
   return (
     <div className="space-y-4 leading-relaxed">
-      {parseMarkdown(markdown).map((block, index) => {
+      {blocks.map((block, index) => {
         switch (block.kind) {
           case "heading": {
             const Heading = `h${block.level}` as const;
@@ -37,10 +39,13 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
               <ul className="list-disc space-y-1 pl-6" key={index}>{items}</ul>
             );
           }
-          case "code":
+          case "code": {
+            // Cada región necesita un nombre distinto para que los lectores de pantalla las distingan.
+            const label = block.language === "python" ? "Ejemplo de código Python" : "Ejemplo de código";
+            const total = codeIndexes.length;
             return (
               <pre
-                aria-label={block.language === "python" ? "Ejemplo de código Python" : "Ejemplo de código"}
+                aria-label={total > 1 ? `${label} ${codeIndexes.indexOf(index) + 1} de ${total}` : label}
                 className="overflow-x-auto rounded-xl bg-code p-4 font-mono text-sm leading-relaxed text-code-text"
                 key={index}
                 role="region"
@@ -49,6 +54,7 @@ export function MarkdownContent({ markdown }: { markdown: string }) {
                 <code>{block.text}</code>
               </pre>
             );
+          }
           default:
             return <p key={index}><Inline segments={block.content} /></p>;
         }
