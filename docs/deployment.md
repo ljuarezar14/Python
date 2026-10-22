@@ -1,6 +1,8 @@
 # Preparación para producción: backend
 
-Lista para desplegar la API (PR-013a). El despliegue concreto y el proveedor se deciden en PR-014.
+Lista para desplegar la API (PR-013a). Por ahora PyRaíz se usa solo en local con `node scripts/local.mjs` (PR-014, ver el README); el proveedor y el dominio se decidirán cuando se publique en internet.
+
+**Nota para entonces:** la cookie de sesión es `SameSite=Lax`, así que la web y la API deben estar en el mismo sitio, por ejemplo `pyraiz.example` y `api.pyraiz.example`. Con las direcciones gratuitas de los proveedores (`*.vercel.app`, `*.onrender.com`, `*.up.railway.app`), cada una es un sitio distinto y el navegador no envía la cookie: el ingreso fallaría. Hace falta un dominio propio.
 
 ## Variables de entorno
 
