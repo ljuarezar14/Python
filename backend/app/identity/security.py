@@ -1,12 +1,16 @@
-"""Password hashing, opaque session tokens, and basic request throttling."""
+"""Password hashing, opaque session tokens, and request throttling."""
 
 import hashlib
 import secrets
 import time
-from collections import deque
-from threading import Lock
+from collections.abc import Callable
 
 from pwdlib import PasswordHash
+from sqlalchemy import delete
+from sqlalchemy.dialects import postgresql, sqlite
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.identity.models import RateLimitCounter
 
 password_hasher = PasswordHash.recommended()
 dummy_hash = password_hasher.hash("a-password-that-no-account-uses")
@@ -21,26 +25,49 @@ def new_token() -> str:
 
 
 class RateLimiter:
-    """Per-process guard for local use; deployment needs a shared edge limit."""
+    """Fixed-window counter kept in the database, so every API process shares it.
 
-    def __init__(self, limit: int = 10, window_seconds: int = 60) -> None:
+    A burst can reach twice the limit across a window boundary; that is acceptable
+    for slowing down password guessing and abusive saves.
+    """
+
+    def __init__(
+        self,
+        session_factory: sessionmaker[Session],
+        scope: str,
+        limit: int = 10,
+        window_seconds: int = 60,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
+        self.session_factory = session_factory
+        self.scope = scope
         self.limit = limit
         self.window_seconds = window_seconds
-        self._events: dict[str, deque[float]] = {}
-        self._lock = Lock()
+        self.clock = clock
 
     def allow(self, key: str) -> bool:
-        now = time.monotonic()
-        with self._lock:
-            # Expired keys are discarded so the map cannot grow indefinitely.
-            for stale in [
-                name for name, hits in self._events.items() if hits[-1] <= now - self.window_seconds
-            ]:
-                del self._events[stale]
-            hits = self._events.setdefault(key, deque())
-            while hits and hits[0] <= now - self.window_seconds:
-                hits.popleft()
-            if len(hits) >= self.limit:
-                return False
-            hits.append(now)
-            return True
+        now = int(self.clock())
+        window_start = now - now % self.window_seconds
+        key_hash = hash_token(f"{self.scope}:{key}")
+        with self.session_factory() as db:
+            dialect = db.get_bind().dialect.name
+            insert = postgresql.insert if dialect == "postgresql" else sqlite.insert
+            statement = (
+                insert(RateLimitCounter)
+                .values(key_hash=key_hash, window_start=window_start, hits=1)
+                .on_conflict_do_update(
+                    index_elements=["key_hash", "window_start"],
+                    set_={"hits": RateLimitCounter.hits + 1},
+                )
+                .returning(RateLimitCounter.hits)
+            )
+            hits = db.execute(statement).scalar_one()
+            if hits == 1:
+                # Cada ventana nueva de una clave limpia las ventanas antiguas de todas.
+                db.execute(
+                    delete(RateLimitCounter).where(
+                        RateLimitCounter.window_start < window_start - self.window_seconds
+                    )
+                )
+            db.commit()
+        return hits <= self.limit

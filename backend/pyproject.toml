@@ -19,6 +19,9 @@ dev = [
   "pytest>=8,<10",
   "ruff>=0.9,<1",
 ]
+postgres = [
+  "pgserver>=0.1,<1",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

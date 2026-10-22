@@ -1,6 +1,6 @@
 # Contratos HTTP actuales
 
-Todos los endpoints están bajo `/api/v1`. Los errores usan el campo `detail` de FastAPI. Las solicitudes POST de identidad requieren un encabezado `Origin` autorizado. Las cookies se envían desde el frontend con `credentials: "include"`.
+Todos los endpoints están bajo `/api/v1`. Los errores usan el campo `detail` de FastAPI. Las solicitudes POST de identidad requieren un encabezado `Origin` autorizado. Las cookies se envían desde el frontend con `credentials: "include"`. Todas las respuestas llevan cabeceras de seguridad, y las de identidad, onboarding y progreso, `Cache-Control: no-store` ([deployment.md](deployment.md)). Con más intentos de los permitidos, las rutas limitadas responden `429`.
 
 | Método y ruta | Entrada | Resultado |
 | --- | --- | --- |
