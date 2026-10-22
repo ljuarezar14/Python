@@ -11,7 +11,7 @@ Cada PR requiere criterios de aceptación, pruebas pertinentes, revisión de seg
 7. **PR-007:** contrato de ejecución y Pyodide en worker.
 8. **PR-008:** evaluación de ejercicios y retroalimentación, dividido en **PR-008a** (modelo, pruebas y API de ejercicios) y **PR-008b** (evaluador en el navegador e interfaz de retroalimentación).
 9. **PR-009:** progreso y reanudación, dividido en **PR-009a** (modelo y API de progreso) y **PR-009b** (guardado desde la página del ejercicio y «continuar donde lo dejaste»).
-10. **PR-010a en adelante:** contenido básico en entregas pedagógicas pequeñas.
+10. **PR-010:** contenido básico en entregas pedagógicas pequeñas: **PR-010a** (pantallas de ruta, módulo y lección, con Markdown seguro), **PR-010b** (carga de contenido revisado desde archivos y primera lección real) y, desde **PR-010c**, una lección nueva por entrega.
 11. **PR-011:** proyectos integradores.
 12. **PR-012a en adelante:** administración según los modelos existentes.
 13. **PR-013 a PR-016:** auditorías, despliegue y piloto, con alcance ajustado a evidencia de uso.

@@ -32,7 +32,7 @@ El contrato de ejecución añade una operación `evaluate`, separada de `run`. R
 - Cada prueba ejecuta el programa desde cero, con variables limpias. La salida se captura por prueba con el límite de 20 000 caracteres; si se supera, la prueba falla.
 - El worker envía cada resultado en cuanto termina la prueba. El tiempo límite de 10 s cubre la evaluación completa: si se agota, se conservan las pruebas terminadas y las demás quedan como `not_run`.
 - El hilo principal solo acepta resultados de pruebas solicitadas, una vez cada una.
-- La página `/practicar/ejercicios/{id}` carga el ejercicio desde la API, valida su forma y guarda un borrador por ejercicio y versión en el navegador. El enunciado se interpreta con un subconjunto mínimo de Markdown (párrafos, `código` y _énfasis_) que produce elementos de React, nunca HTML.
+- La página `/practicar/ejercicios/{id}` carga el ejercicio desde la API, valida su forma y guarda un borrador por ejercicio y versión en el navegador. El enunciado se interpreta con un subconjunto mínimo de Markdown (párrafos, `código` y _énfasis_) que produce elementos de React, nunca HTML. Desde PR-010a usa el renderizador de lecciones descrito en ADR-0004.
 
 ## Seguridad
 

@@ -54,3 +54,10 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - Las peticiones de progreso usan `credentials: "include"` para enviar la cookie de sesión; la de ejercicios sigue con `credentials: "omit"`. Las respuestas se validan antes de usarse y los mensajes de error de la API no se muestran tal cual, salvo el texto del límite de guardados.
 - El código guardado se muestra en el editor como texto y no se ejecuta hasta que la persona pulsa **Comprobar**. Antes de reemplazar un borrador con cambios propios se pide confirmación.
 - La página sigue funcionando sin sesión y sin API de progreso; solo deja de guardar.
+
+## Pantallas del catálogo (PR-010a)
+
+- Las lecturas del catálogo usan `credentials: "omit"`: la API curricular es pública y no necesita la cookie. Las respuestas se validan antes de usarse; un nivel de módulo desconocido o un campo con otro tipo se trata como error.
+- El Markdown de lecciones y enunciados se convierte en elementos de React a partir de texto, sin `dangerouslySetInnerHTML`. HTML, `<script>`, imágenes y enlaces (incluidos `javascript:`) se muestran como texto. Las pruebas unitarias y la prueba de punta a punta lo comprueban con contenido malicioso.
+- Los bloques de código son regiones con foco de teclado para poder desplazarlos; su texto no se ejecuta.
+- La lista de ejercicios de una lección consulta el progreso con la cookie solo después de comprobar con la primera consulta que hay sesión.

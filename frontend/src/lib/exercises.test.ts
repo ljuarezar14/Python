@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { fetchExercise, parseExercise } from "./exercises.ts";
-import { parsePrompt } from "./prompt-text.ts";
 
 const EXERCISE = {
   id: "dev-greeting-input",
@@ -52,22 +51,4 @@ test("traduce las respuestas de la API", async () => {
     throw new TypeError("Failed to fetch");
   }) as typeof fetch);
   assert.deepEqual(offline.status, "error");
-});
-
-test("interpreta solo párrafos, código y énfasis, sin HTML", () => {
-  assert.deepEqual(parsePrompt("Muestra `Hola`.\n\n_Nota_ final"), [
-    [
-      { kind: "text", text: "Muestra " },
-      { kind: "code", text: "Hola" },
-      { kind: "text", text: "." },
-    ],
-    [
-      { kind: "emphasis", text: "Nota" },
-      { kind: "text", text: " final" },
-    ],
-  ]);
-  assert.deepEqual(parsePrompt('<img src=x onerror="alert(1)"> **negrita**'), [
-    [{ kind: "text", text: '<img src=x onerror="alert(1)"> **negrita**' }],
-  ]);
-  assert.deepEqual(parsePrompt("\r\n\r\n"), []);
 });
