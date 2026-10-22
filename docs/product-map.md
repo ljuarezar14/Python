@@ -2,12 +2,12 @@
 
 La persona comienza por su objetivo y avanza por **ruta → módulo → lección → práctica → progreso**. Este mapa es la estructura del producto, no una promesa de que todas las etapas ya funcionan.
 
-| Etapa | Pantalla o contrato | Estado en PR-010b |
+| Etapa | Pantalla o contrato | Estado en PR-010c |
 | --- | --- | --- |
 | Objetivo | `/onboarding` | Disponible; recomendación inicial por reglas |
 | Ruta | `/aprender`, `/aprender/rutas/{id}` | Disponible; primera ruta publicada: «Python desde cero» |
 | Módulo | `/aprender/modulos/{id}` | Disponible; primer módulo, «Primeros pasos», en marcha |
-| Lección | `/aprender/lecciones/{id}` | Disponible; primera lección publicada: «Mostrar mensajes con print()», con 3 ejercicios |
+| Lección | `/aprender/lecciones/{id}` | Disponible; 2 lecciones publicadas: «Mostrar mensajes con print()» (3 ejercicios) y «Hacer cálculos con números» (4 ejercicios) |
 | Práctica | `/practicar`, `/practicar/ejercicios/{id}` | Práctica libre y ejercicios con pruebas automáticas y retroalimentación |
 | Progreso | Disponible con cuenta | Último intento guardado por ejercicio, ejercicios resueltos y «Continuar donde lo dejaste» en la cuenta (autodeclarado) |
 

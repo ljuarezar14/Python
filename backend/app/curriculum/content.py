@@ -233,6 +233,9 @@ def apply_catalog(db: Session, catalog: Catalog) -> Report:
             _sync(db, Module, module.id, module.version, values, report)
         db.flush()
 
+    # Primero todas las lecciones y después los prerrequisitos: una lección puede
+    # depender de otra que aparece más tarde en el orden de los archivos.
+    changed_lessons = set()
     for lesson in catalog.lessons:
         values = {
             "module_id": lesson.module,
@@ -243,6 +246,13 @@ def apply_catalog(db: Session, catalog: Catalog) -> Report:
             "content_markdown": lesson.content,
             "status": lesson.status,
         }
+        before = report.updated + report.created
+        _sync(db, Lesson, lesson.id, lesson.version, values, report)
+        if report.updated + report.created > before:
+            changed_lessons.add(lesson.id)
+    db.flush()
+
+    for lesson in catalog.lessons:
         stored = set(
             db.scalars(
                 select(LessonPrerequisite.prerequisite_id).where(
@@ -250,17 +260,15 @@ def apply_catalog(db: Session, catalog: Catalog) -> Report:
                 )
             )
         )
-        before = report.updated + report.created
-        _sync(db, Lesson, lesson.id, lesson.version, values, report)
-        if stored != set(lesson.prerequisites):
-            if report.updated + report.created == before:
-                raise ContentError(f"{lesson.id}: cambiaron los prerrequisitos; sube «version»")
-            db.flush()
-            for prerequisite_id in stored - set(lesson.prerequisites):
-                db.delete(db.get(LessonPrerequisite, (lesson.id, prerequisite_id)))
-            for prerequisite_id in set(lesson.prerequisites) - stored:
-                db.add(LessonPrerequisite(lesson_id=lesson.id, prerequisite_id=prerequisite_id))
-        db.flush()
+        if stored == set(lesson.prerequisites):
+            continue
+        if lesson.id not in changed_lessons:
+            raise ContentError(f"{lesson.id}: cambiaron los prerrequisitos; sube «version»")
+        for prerequisite_id in stored - set(lesson.prerequisites):
+            db.delete(db.get(LessonPrerequisite, (lesson.id, prerequisite_id)))
+        for prerequisite_id in set(lesson.prerequisites) - stored:
+            db.add(LessonPrerequisite(lesson_id=lesson.id, prerequisite_id=prerequisite_id))
+    db.flush()
 
     for lesson in catalog.lessons:
         for exercise in lesson.exercises:
@@ -339,8 +347,8 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         engine.dispose()
     print(
-        f"Contenido cargado: {report.created} nuevos, {report.updated} actualizados,"
-        f" {report.unchanged} sin cambios."
+        f"Contenido cargado. Nuevos: {report.created}; actualizados: {report.updated};"
+        f" sin cambios: {report.unchanged}."
     )
     return 0
 
