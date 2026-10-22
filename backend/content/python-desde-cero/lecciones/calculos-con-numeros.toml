@@ -1,0 +1,152 @@
+# Lección y ejercicios. Cualquier cambio en un registro exige subir su «version».
+# «solution» no se carga en la base: sirve para comprobar las pruebas con
+# `npm run check:content` desde frontend/.
+id = "calculos-con-numeros"
+module = "primeros-pasos"
+position = 2
+title = "Hacer cálculos con números"
+summary = "Usa Python como calculadora: suma, resta, multiplica y divide, y controla el orden de las operaciones."
+objectives = [
+  "Calcular con los operadores +, -, * y /",
+  "Usar paréntesis para decidir el orden de las operaciones",
+  "Obtener el cociente entero con // y el resto con %",
+  "Escribir números decimales con punto",
+]
+prerequisites = ["mostrar-mensajes"]
+status = "published"
+version = 1
+content = '''
+# Python como calculadora
+
+Si das a `print()` una operación en lugar de un texto, Python la calcula y muestra el resultado:
+
+```python
+print(7 + 5)
+print(10 - 4)
+print(6 * 3)
+print(9 / 2)
+```
+
+La pantalla muestra `12`, `6`, `18` y `4.5`, cada uno en su línea. Para multiplicar se usa `*` y para dividir, `/`.
+
+# Texto u operación
+
+Las comillas cambian todo. Sin comillas, Python calcula; con comillas, muestra el texto tal cual:
+
+```python
+print(2 + 3)
+print("2 + 3")
+```
+
+La primera línea muestra `5` y la segunda, `2 + 3`.
+
+# El orden de las operaciones
+
+Como en matemáticas, Python multiplica y divide antes de sumar y restar. Para cambiar ese orden, usa paréntesis:
+
+```python
+print(2 + 3 * 4)
+print((2 + 3) * 4)
+```
+
+La primera línea muestra `14` y la segunda, `20`.
+
+# Decimales y divisiones
+
+- Los decimales se escriben con **punto**: `2.5`, no `2,5`.
+- `/` siempre da un número decimal, aunque la división sea exacta: `print(8 / 2)` muestra `4.0`.
+- `//` da el cociente entero y `%` el resto. Al repartir 7 caramelos entre 2 personas, `7 // 2` es `3` (caramelos para cada una) y `7 % 2` es `1` (el que sobra).
+
+# Errores frecuentes
+
+- `print(3,5)` no muestra un decimal: la coma separa dos valores y la pantalla muestra `3 5`. Escribe `3.5`.
+- Dividir entre cero no está permitido: `print(5 / 0)` produce un `ZeroDivisionError`.
+- Si el resultado no es el que esperabas, revisa el orden de las operaciones y añade paréntesis.
+'''
+
+[[exercises]]
+id = "calculos-suma"
+position = 1
+title = "Una suma"
+prompt = '''
+Haz que Python calcule y muestre el resultado de sumar `25` y `17`.
+
+Escribe la operación dentro de `print()`, sin comillas; no escribas el resultado a mano.
+'''
+starter_code = '''
+# Escribe la suma dentro de print()
+'''
+solution = '''
+print(25 + 17)
+'''
+checks = [
+  { kind = "output", id = "suma", description = "Muestra el resultado de 25 + 17", expected_stdout = "42\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "calculos-precio-total"
+position = 2
+title = "El precio total"
+prompt = '''
+Compras 3 cuadernos de 12 euros y 2 lápices de 4 euros. Muestra cuánto pagas en total con una sola operación dentro de `print()`.
+'''
+starter_code = '''
+# 3 cuadernos de 12 y 2 lápices de 4
+'''
+solution = '''
+print(3 * 12 + 2 * 4)
+'''
+checks = [
+  { kind = "output", id = "total", description = "Muestra el precio total", expected_stdout = "44\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "calculos-repartir"
+position = 3
+title = "Repartir caramelos"
+prompt = '''
+Repartes 17 caramelos entre 5 personas, todas con la misma cantidad. Muestra dos líneas:
+
+1. Cuántos caramelos recibe cada persona.
+2. Cuántos caramelos sobran.
+
+Usa `//` y `%`.
+'''
+starter_code = '''
+# Primera línea: caramelos para cada persona
+# Segunda línea: caramelos que sobran
+'''
+solution = '''
+print(17 // 5)
+print(17 % 5)
+'''
+checks = [
+  { kind = "output", id = "reparto", description = "Muestra el cociente y el resto de 17 entre 5", expected_stdout = "3\n2\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "calculos-promedio"
+position = 4
+title = "La nota media"
+prompt = '''
+Tus notas son 7, 8 y 9. Muestra su media: la suma de las tres notas dividida entre 3.
+
+Cuidado con el orden de las operaciones. Como usas `/`, el resultado se muestra con decimal.
+'''
+starter_code = '''
+print(7 + 8 + 9 / 3)
+'''
+solution = '''
+print((7 + 8 + 9) / 3)
+'''
+checks = [
+  { kind = "output", id = "media", description = "Muestra la media de 7, 8 y 9", expected_stdout = "8.0\n" },
+]
+status = "published"
+version = 1

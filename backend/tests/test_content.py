@@ -110,16 +110,27 @@ def apply(client: TestClient, root: Path) -> content.Report:
 def test_repository_content_is_valid() -> None:
     catalog = load_catalog()
     assert [path.id for path in catalog.paths] == ["python-desde-cero"]
-    assert catalog.lessons[0].id == "mostrar-mensajes"
+    assert {"mostrar-mensajes", "calculos-con-numeros"} <= {lesson.id for lesson in catalog.lessons}
     assert all(ex.solution.strip() for lesson in catalog.lessons for ex in lesson.exercises)
 
 
 def test_repository_content_is_published_through_the_api(client: TestClient) -> None:
+    catalog = load_catalog()
+    records = (
+        len(catalog.paths)
+        + sum(len(path.modules) for path in catalog.paths)
+        + len(catalog.lessons)
+        + sum(len(lesson.exercises) for lesson in catalog.lessons)
+    )
     report = apply(client, content.CONTENT_DIR)
-    assert (report.created, report.updated, report.unchanged) == (6, 0, 0)
+    assert (report.created, report.updated, report.unchanged) == (records, 0, 0)
 
     paths = client.get("/api/v1/curriculum/paths").json()["items"]
     assert [path["id"] for path in paths] == ["python-desde-cero"]
+    module = client.get("/api/v1/curriculum/modules/primeros-pasos").json()
+    lessons = {lesson["id"]: lesson for lesson in module["lessons"]}
+    assert len(lessons) == sum(1 for lesson in catalog.lessons if lesson.module == "primeros-pasos")
+    assert lessons["calculos-con-numeros"]["prerequisite_ids"] == ["mostrar-mensajes"]
     lesson = client.get("/api/v1/curriculum/lessons/mostrar-mensajes").json()
     assert [ex["id"] for ex in lesson["exercises"]] == [
         "mensajes-hola-mundo",
@@ -133,7 +144,7 @@ def test_repository_content_is_published_through_the_api(client: TestClient) -> 
     assert "¡Hola, mundo!" not in detail["starter_code"]
 
     again = apply(client, content.CONTENT_DIR)
-    assert (again.created, again.updated, again.unchanged) == (0, 0, 6)
+    assert (again.created, again.updated, again.unchanged) == (0, 0, records)
 
 
 def test_changes_require_a_higher_version(client: TestClient, tree: Path) -> None:
@@ -253,9 +264,9 @@ def test_command_line(
 
     command.upgrade(alembic_config(), "head")
     assert content.main([str(tree)]) == 0
-    assert "4 nuevos" in capsys.readouterr().out
+    assert "Nuevos: 4;" in capsys.readouterr().out
     assert content.main([str(tree)]) == 0
-    assert "4 sin cambios" in capsys.readouterr().out
+    assert "sin cambios: 4." in capsys.readouterr().out
 
     assert content.main(["--json", str(tree)]) == 0
     assert '"solution": "print(\'hola\')"' in capsys.readouterr().out
@@ -265,3 +276,12 @@ def test_command_line(
     (broken / "ruta" / "ruta.toml").write_text("id = ", encoding="utf-8")
     assert content.main([str(broken)]) == 1
     assert "Contenido inválido" in capsys.readouterr().err
+
+
+def test_prerequisite_may_come_later_in_file_order(client: TestClient, tree: Path) -> None:
+    # «a-segunda» se lee antes que «primera», pero depende de ella.
+    write_lesson(tree, "a-segunda", position=2, prerequisites='["primera"]')
+    assert apply(client, tree).created == 6
+    module = client.get("/api/v1/curriculum/modules/modulo").json()
+    assert [lesson["id"] for lesson in module["lessons"]] == ["primera", "a-segunda"]
+    assert module["lessons"][1]["prerequisite_ids"] == ["primera"]

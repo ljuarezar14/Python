@@ -30,5 +30,6 @@ Cada ejercicio incluye una `solution` de referencia que **no se guarda en la bas
 
 - Publicar contenido exige un PR, `npm run check:content` y ejecutar el comando de carga en cada entorno después de migrar.
 - Las soluciones son públicas en el repositorio, igual que las pruebas (ADR-0007): la evaluación es formativa.
+- Los prerrequisitos se guardan después de todas las lecciones, porque el orden de los archivos es alfabético y no tiene por qué coincidir con el orden curricular (corregido en PR-010c).
 - Mover lecciones de posición dentro de un módulo puede chocar con la restricción de posición única durante la carga; el comando lo informa sin cambiar nada y habrá que hacerlo en dos pasos.
 - Cuando llegue la administración (PR-012), habrá que decidir si los archivos siguen siendo la fuente o se exportan desde ella.
