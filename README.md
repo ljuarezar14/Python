@@ -11,7 +11,19 @@ PyRaíz está en su primera etapa de desarrollo. El registro, las sesiones y el 
 
 ## Inicio local
 
-En una terminal, desde `frontend/`:
+La primera vez, instala las dependencias: `npm ci` dentro de `frontend/` y `uv sync` dentro de `backend/`. Después, desde la raíz del repositorio, un solo comando:
+
+```powershell
+node scripts/local.mjs
+```
+
+Aplica las migraciones, carga las lecciones e inicia la API (`http://localhost:8000`) y la web (`http://localhost:3000`). Cuando aparece **PyRaíz listo**, abre `http://localhost:3000`. **Ctrl+C** apaga las dos. Si un puerto ya está ocupado, el comando avisa y no arranca nada.
+
+Para ver la web tal como se publicaría (compilada, con la CSP de producción), usa `node scripts/local.mjs --production`. La API sigue en modo desarrollo con SQLite: el modo producción de la API exige HTTPS y PostgreSQL ([docs/deployment.md](docs/deployment.md)).
+
+### Paso a paso, en dos terminales
+
+Si prefieres arrancar cada parte por separado, en una terminal, desde `frontend/`:
 
 ```powershell
 npm ci
@@ -44,6 +56,10 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+```
+
+```powershell
+node --test scripts/local.test.mjs
 ```
 
 ```powershell
