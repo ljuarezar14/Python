@@ -56,7 +56,7 @@ export function AccountPanel() {
           <p className="mb-2 text-sm font-bold text-muted">Correo registrado</p>
           <p className="mb-8 break-all text-lg font-bold">{user.email}</p>
           <ProgressOverview />
-          <p className="mb-6 text-muted">Define tu objetivo y recibe una recomendación inicial. Las lecciones llegarán en una siguiente etapa.</p>
+          <p className="mb-6 text-muted">Define tu objetivo y recibe una recomendación inicial. Las lecciones publicadas están en el mapa de aprendizaje.</p>
           <div className="mb-5"><Link className="inline-flex min-h-12 items-center rounded-xl bg-[#17553e] px-5 py-3 font-bold text-white no-underline hover:bg-[#0f422f]" href="/onboarding">Definir mi punto de partida</Link></div>
           <p className="mb-5"><Link className="font-bold text-brand underline underline-offset-4" href="/aprender">Ver el mapa de aprendizaje</Link></p>
           <button className="min-h-12 rounded-xl border border-border px-5 py-3 font-bold hover:bg-surface-muted" onClick={logout} type="button">Cerrar sesión</button>
