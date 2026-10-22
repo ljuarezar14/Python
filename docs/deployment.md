@@ -52,8 +52,14 @@ En todos los entornos, la API envía estas cabeceras:
 
 Con un servidor propio, define `PYRAIZ_TEST_POSTGRES_URL`. Sin ninguno de los dos, esas pruebas se omiten.
 
+## Frontend
+
+- Compilar con `NEXT_PUBLIC_PYRAIZ_API_URL` apuntando a la API `https://`. Esa URL queda dentro de la compilación y de la CSP: si cambia, hay que recompilar.
+- Publicar con `npm run build` y `npm run start` (Node.js). Las páginas se generan en cada petición para llevar el nonce de la CSP ([ADR-0011](decisions/0011-frontend-csp-nonces.md)); no sirve una exportación estática.
+- Si el proveedor añade sus propias cabeceras, no debe sustituir la `Content-Security-Policy` de las páginas ni la del worker (`/execution/`, `/pyodide/`).
+- Comprobar tras publicar: `curl -I https://<sitio>/aprender` muestra la CSP con `nonce-`, y en **Practicar** el botón **Ejecutar** muestra la salida de Python.
+
 ## Pendiente antes del piloto
 
-- Frontend: cabeceras y CSP compatibles con Pyodide, y revisión de accesibilidad (PR-013b).
 - Proveedor, dominio, copias de seguridad de la base y supervisión (PR-014).
 - Recuperación de contraseña y verificación de correo: necesitan un servicio de correo y quedan fuera del piloto. Hasta entonces, quien olvide su contraseña tendrá que crear otra cuenta.
