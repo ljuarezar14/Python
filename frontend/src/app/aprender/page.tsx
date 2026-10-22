@@ -14,7 +14,7 @@ const stages = [
     number: "02",
     title: "Módulos",
     description: "Cada ruta se divide en temas con objetivos y conocimientos previos claros.",
-    status: "Primer módulo en marcha",
+    status: "Primer módulo completo",
   },
   {
     number: "03",

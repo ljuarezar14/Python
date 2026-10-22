@@ -1,0 +1,136 @@
+# Lección y ejercicios. Cualquier cambio en un registro exige subir su «version».
+# «solution» no se carga en la base: sirve para comprobar las pruebas con
+# `npm run check:content` desde frontend/.
+id = "guardar-datos-en-variables"
+module = "primeros-pasos"
+position = 3
+title = "Guardar datos en variables"
+summary = "Pon nombre a tus datos para usarlos varias veces, calcular con ellos y cambiarlos."
+objectives = [
+  "Crear una variable y darle un valor con =",
+  "Usar variables en print() y en cálculos",
+  "Cambiar el valor de una variable",
+  "Elegir nombres válidos y reconocer un NameError",
+]
+prerequisites = ["calculos-con-numeros"]
+status = "published"
+version = 1
+content = '''
+# Qué es una variable
+
+Una **variable** es un nombre que guarda un dato. Se crea escribiendo el nombre, el signo `=` y el valor:
+
+```python
+edad = 15
+ciudad = "Lima"
+```
+
+Desde ese momento, `edad` vale `15` y `ciudad` vale `"Lima"`. El signo `=` no significa «es igual» como en matemáticas: significa «guarda este valor con este nombre».
+
+# Usar una variable
+
+Para usar el dato, escribe el nombre de la variable **sin comillas**:
+
+```python
+precio = 12
+cantidad = 3
+print(precio * cantidad)
+print("precio")
+```
+
+La primera línea de salida es `36`, porque Python usa los valores guardados. La segunda es `precio`: entre comillas, es solo un texto.
+
+# Cambiar el valor
+
+Si vuelves a usar `=` con el mismo nombre, el valor anterior se reemplaza. Python lee el programa de arriba abajo y usa el último valor guardado:
+
+```python
+puntos = 10
+puntos = puntos + 5
+print(puntos)
+```
+
+La pantalla muestra `15`. La segunda línea se lee así: «calcula `puntos + 5` y guarda el resultado otra vez en `puntos`».
+
+# Cómo elegir nombres
+
+- Usa letras, números y guion bajo, como `precio_total`. No uses espacios ni tildes.
+- El nombre no puede empezar por un número: `1precio` no es válido.
+- Las mayúsculas importan: `precio` y `Precio` son variables distintas. Lo habitual es escribir en minúsculas.
+- Elige nombres que expliquen el dato: `edad` es más claro que `x`.
+
+# Errores frecuentes
+
+- Usar una variable antes de crearla, o escribir mal su nombre, produce un `NameError`. El mensaje dice qué nombre no reconoce.
+- Escribir el nombre entre comillas muestra el texto, no el valor.
+- Escribir `15 = edad` produce un `SyntaxError`: el nombre siempre va a la izquierda del `=`.
+'''
+
+[[exercises]]
+id = "variables-mostrar"
+position = 1
+title = "Mostrar una variable"
+prompt = '''
+El programa ya guarda una ciudad en la variable `ciudad`. Añade una línea que muestre su valor usando la variable, sin escribir el nombre de la ciudad.
+'''
+starter_code = '''
+ciudad = "Lima"
+# Muestra el valor de la variable ciudad
+'''
+solution = '''
+ciudad = "Lima"
+print(ciudad)
+'''
+checks = [
+  { kind = "output", id = "ciudad", description = "Muestra el valor de ciudad", expected_stdout = "Lima\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "variables-precio-total"
+position = 2
+title = "Calcular con variables"
+prompt = '''
+Las variables `precio` y `cantidad` ya tienen valor. Guarda en una variable `total` el resultado de multiplicarlas y muestra `total`.
+'''
+starter_code = '''
+precio = 12
+cantidad = 3
+# Guarda el total en una variable y muéstrala
+'''
+solution = '''
+precio = 12
+cantidad = 3
+total = precio * cantidad
+print(total)
+'''
+checks = [
+  { kind = "output", id = "total", description = "Muestra el total", expected_stdout = "36\n" },
+]
+status = "published"
+version = 1
+
+[[exercises]]
+id = "variables-actualizar"
+position = 3
+title = "Sumar puntos"
+prompt = '''
+Un jugador tiene 10 puntos y gana 5. Actualiza la variable `puntos` sumándole 5 y muestra su nuevo valor.
+
+Usa la misma variable: `puntos = puntos + 5`.
+'''
+starter_code = '''
+puntos = 10
+# Suma 5 a puntos y muestra el nuevo valor
+'''
+solution = '''
+puntos = 10
+puntos = puntos + 5
+print(puntos)
+'''
+checks = [
+  { kind = "output", id = "puntos", description = "Muestra los puntos después de sumar 5", expected_stdout = "15\n" },
+]
+status = "published"
+version = 1
