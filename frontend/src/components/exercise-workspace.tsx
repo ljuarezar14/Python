@@ -2,8 +2,9 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { MarkdownContent } from "@/components/markdown-content";
 import { API_BASE } from "@/lib/api";
 import { createBrowserRunner, ENGINE_LABELS, FIRST_LOAD_MESSAGE, formatDuration } from "@/lib/execution/browser-runner";
 import { EXECUTION_CONTRACT_VERSION } from "@/lib/execution/contract";
@@ -13,7 +14,6 @@ import { fetchExercise } from "@/lib/exercises";
 import type { Exercise, ExerciseLoad } from "@/lib/exercises";
 import { attemptFromEvaluation, describeResult, fetchExerciseProgress, saveExerciseProgress } from "@/lib/progress";
 import type { ExerciseProgress } from "@/lib/progress";
-import { parsePrompt } from "@/lib/prompt-text";
 import { useLocalDraft } from "@/lib/use-local-draft";
 
 const PythonCodeEditor = dynamic(() => import("@/components/python-code-editor"), {
@@ -112,24 +112,6 @@ function summarize(result: EvaluationResult) {
     default:
       return `${result.diagnostics[0] ?? "La evaluación no terminó."} ${count}.`;
   }
-}
-
-function PromptText({ markdown }: { markdown: string }) {
-  return (
-    <div className="space-y-3 leading-relaxed">
-      {parsePrompt(markdown).map((paragraph, index) => (
-        <p key={index}>
-          {paragraph.map((segment, part) => {
-            if (segment.kind === "code") {
-              return <code className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-sm" key={part}>{segment.text}</code>;
-            }
-            if (segment.kind === "emphasis") return <em key={part}>{segment.text}</em>;
-            return <Fragment key={part}>{segment.text}</Fragment>;
-          })}
-        </p>
-      ))}
-    </div>
-  );
 }
 
 function CheckDetails({ check, result }: { check: ExerciseCheck; result: CheckResult }) {
@@ -387,10 +369,16 @@ export function ExerciseWorkspace({ exerciseId }: { exerciseId: string }) {
   const { exercise } = load;
   return (
     <>
-      <p className="mb-3 text-sm font-extrabold uppercase tracking-widest text-brand">Ejercicio</p>
+      <Link
+        className="text-sm font-bold text-brand underline underline-offset-4"
+        href={`/aprender/lecciones/${encodeURIComponent(exercise.lesson_id)}`}
+      >
+        ← Volver a la lección
+      </Link>
+      <p className="mb-3 mt-5 text-sm font-extrabold uppercase tracking-widest text-brand">Ejercicio</p>
       <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{exercise.title}</h1>
       <div className="mt-5 max-w-3xl text-lg">
-        <PromptText markdown={exercise.prompt_markdown} />
+        <MarkdownContent markdown={exercise.prompt_markdown} />
       </div>
       <ExerciseEditor exercise={exercise} key={`${exercise.id}-${exercise.version}`} />
     </>

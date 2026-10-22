@@ -1,6 +1,6 @@
 # Arquitectura inicial
 
-Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añadió el mapa visible y un editor de borradores locales; PR-007 ejecuta Python en el navegador con Pyodide dentro de un Web Worker; PR-008a añadió ejercicios con pruebas públicas a la API del currículo; PR-008b los evalúa en el navegador y muestra retroalimentación por prueba.
+Estado: PR-003 incorporó identidad y sesiones; PR-004 añadió preferencias y una recomendación por reglas; PR-005 incorporó el catálogo curricular de solo lectura; PR-006 añadió el mapa visible y un editor de borradores locales; PR-007 ejecuta Python en el navegador con Pyodide dentro de un Web Worker; PR-008a añadió ejercicios con pruebas públicas a la API del currículo; PR-008b los evalúa en el navegador y muestra retroalimentación por prueba; PR-009 guarda el progreso autodeclarado; PR-010a muestra rutas, módulos y lecciones publicadas con un renderizador de Markdown que no inserta HTML.
 
 ```mermaid
 flowchart LR
