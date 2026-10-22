@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { API_BASE } from "@/lib/api";
 import { createBrowserRunner, ENGINE_LABELS, FIRST_LOAD_MESSAGE, formatDuration } from "@/lib/execution/browser-runner";
 import { EXECUTION_CONTRACT_VERSION } from "@/lib/execution/contract";
@@ -10,6 +11,8 @@ import type { CheckResult, CheckStatus, EvaluationResult, ExerciseCheck, RunnerS
 import type { WorkerPythonRunner } from "@/lib/execution/worker-runner";
 import { fetchExercise } from "@/lib/exercises";
 import type { Exercise, ExerciseLoad } from "@/lib/exercises";
+import { attemptFromEvaluation, describeResult, fetchExerciseProgress, saveExerciseProgress } from "@/lib/progress";
+import type { ExerciseProgress } from "@/lib/progress";
 import { parsePrompt } from "@/lib/prompt-text";
 import { useLocalDraft } from "@/lib/use-local-draft";
 
@@ -31,6 +34,73 @@ const STATUS_STYLES: Record<CheckStatus, string> = {
   error: "border-focus",
   not_run: "border-border",
 };
+
+type AccountProgress =
+  | { status: "loading" }
+  | { status: "signed_out" }
+  | { status: "error"; message: string }
+  | { status: "ready"; progress: ExerciseProgress | null };
+
+function formatDate(iso: string) {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("es", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function ProgressPanel({
+  account,
+  code,
+  saveMessage,
+  onLoad,
+}: {
+  account: AccountProgress;
+  code: string;
+  saveMessage: string;
+  onLoad: (progress: ExerciseProgress) => void;
+}) {
+  let body: ReactNode;
+  if (account.status === "loading") {
+    body = <p className="text-muted">Consultando tu progreso…</p>;
+  } else if (account.status === "signed_out") {
+    body = (
+      <p className="text-muted">
+        <Link className="font-bold text-brand underline underline-offset-4" href="/ingresar">Ingresa</Link> para guardar tu progreso y retomarlo desde otro dispositivo.
+      </p>
+    );
+  } else if (account.status === "error") {
+    body = <p className="text-muted">No se pudo consultar tu progreso. {account.message}</p>;
+  } else if (account.progress === null) {
+    body = <p className="text-muted">Cuando pulses Comprobar, tu intento se guardará en tu cuenta.</p>;
+  } else {
+    const { progress } = account;
+    body = (
+      <>
+        <p className="font-semibold">{describeResult(progress)}</p>
+        <p className="mt-1 text-muted">
+          {progress.attempts === 1 ? "1 intento" : `${progress.attempts} intentos`} · último el {formatDate(progress.updated_at)}
+        </p>
+        {progress.outdated && (
+          <p className="mt-2 text-muted">Tu último intento es de una versión anterior de este ejercicio; vuelve a comprobarlo.</p>
+        )}
+        {progress.code !== code && (
+          <button
+            className="mt-3 min-h-11 rounded-xl border border-border px-4 text-sm font-bold hover:bg-surface-muted"
+            onClick={() => onLoad(progress)}
+            type="button"
+          >
+            Cargar mi último intento guardado
+          </button>
+        )}
+      </>
+    );
+  }
+  return (
+    <section className="mt-4 rounded-xl border border-border p-4 text-sm" aria-labelledby="progress-title">
+      <h3 className="font-bold" id="progress-title">Tu progreso</h3>
+      <div className="mt-2">{body}</div>
+      <p className="mt-2 min-h-5 text-muted" role="status">{saveMessage}</p>
+    </section>
+  );
+}
 
 function summarize(result: EvaluationResult) {
   const count = `${result.passedCount} de ${result.totalCount} pruebas correctas`;
@@ -117,13 +187,31 @@ function ExerciseEditor({ exercise }: { exercise: Exercise }) {
   const [results, setResults] = useState<Map<string, CheckResult>>(new Map());
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [status, setStatus] = useState("");
+  const [account, setAccount] = useState<AccountProgress>({ status: "loading" });
+  const [saveMessage, setSaveMessage] = useState("");
   const runnerRef = useRef<WorkerPythonRunner | null>(null);
   const counterRef = useRef(0);
   const codeRef = useRef(code);
+  const signedOutRef = useRef(false);
 
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
+
+  useEffect(() => {
+    signedOutRef.current = account.status === "signed_out";
+  }, [account]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchExerciseProgress(API_BASE, exercise.id).then((load) => {
+      if (cancelled) return;
+      if (load.status === "ok") setAccount({ status: "ready", progress: load.progress });
+      else if (load.status === "none") setAccount({ status: "ready", progress: null });
+      else setAccount(load);
+    });
+    return () => { cancelled = true; };
+  }, [exercise.id]);
 
   useEffect(() => {
     const runner = createBrowserRunner(setEngineState);
@@ -140,14 +228,16 @@ function ExerciseEditor({ exercise }: { exercise: Exercise }) {
     setResults(new Map());
     setEvaluation(null);
     setStatus(runner.state === "ready" ? "Comprobando…" : FIRST_LOAD_MESSAGE);
+    setSaveMessage("");
     counterRef.current += 1;
+    const submitted = codeRef.current;
     const finished = await runner.evaluate(
       {
         contractVersion: EXECUTION_CONTRACT_VERSION,
         runId: `ejercicio-${counterRef.current}`,
         exerciseId: exercise.id,
         exerciseVersion: exercise.version,
-        code: codeRef.current,
+        code: submitted,
         checks: exercise.checks,
       },
       { onCheck: (result) => setResults((current) => new Map(current).set(result.id, result)) },
@@ -156,7 +246,37 @@ function ExerciseEditor({ exercise }: { exercise: Exercise }) {
     setEvaluation(finished);
     setResults(new Map(finished.checks.map((result) => [result.id, result])));
     setStatus(summarize(finished));
+
+    // Sin sesión no se intenta guardar; la cookie decide en los demás casos.
+    const attempt = attemptFromEvaluation(finished, submitted);
+    if (!attempt || signedOutRef.current) return;
+    setSaveMessage("Guardando tu intento…");
+    const saved = await saveExerciseProgress(API_BASE, exercise.id, attempt);
+    if (runnerRef.current !== runner) return;
+    if (saved.status === "saved") {
+      setAccount({ status: "ready", progress: saved.progress });
+      setSaveMessage(saved.progress.solved ? "Intento guardado. Ejercicio resuelto en tu cuenta." : "Intento guardado en tu cuenta.");
+    } else if (saved.status === "signed_out") {
+      setAccount({ status: "signed_out" });
+      setSaveMessage("Tu sesión terminó; el intento no se guardó.");
+    } else if (saved.status === "outdated") {
+      setSaveMessage("Este ejercicio cambió desde que abriste la página. Recárgala para ver la versión nueva; el intento no se guardó.");
+    } else {
+      setSaveMessage(`El intento no se guardó. ${saved.message}`);
+    }
   }, [exercise]);
+
+  function loadSaved(progress: ExerciseProgress) {
+    const current = codeRef.current;
+    if (
+      current !== exercise.starter_code &&
+      !window.confirm("¿Cargar tu último intento guardado? Se reemplazará tu borrador de este navegador.")
+    ) {
+      return;
+    }
+    changeCode(progress.code);
+    setSaveMessage("Último intento cargado en el editor.");
+  }
 
   function resetCode() {
     if (window.confirm("¿Volver al código inicial? Se reemplazará tu borrador de este ejercicio.")) {
@@ -209,6 +329,7 @@ function ExerciseEditor({ exercise }: { exercise: Exercise }) {
           <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-bold text-muted">{ENGINE_LABELS[engineState]}</span>
         </div>
         <p className="mt-3 min-h-6 text-sm font-semibold" role="status">{status}</p>
+        <ProgressPanel account={account} code={code} onLoad={loadSaved} saveMessage={saveMessage} />
         <ol className="mt-3 space-y-3" aria-label="Resultado de cada prueba">
           {exercise.checks.map((check) => {
             const result = results.get(check.id);
@@ -228,7 +349,7 @@ function ExerciseEditor({ exercise }: { exercise: Exercise }) {
           </p>
         )}
         <p className="mt-5 text-sm leading-relaxed text-muted">
-          Las pruebas se ejecutan en tu navegador y puedes ver qué esperan. Sirven para orientarte: el resultado todavía no se guarda ni cuenta como progreso.
+          Las pruebas se ejecutan en tu navegador y puedes ver qué esperan. Sirven para orientarte: si ingresas, tu último intento se guarda como progreso, pero lo calcula tu navegador y no acredita lo que sabes.
         </p>
       </aside>
     </div>

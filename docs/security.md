@@ -48,3 +48,9 @@ PR-006 conserva el borrador del editor en el almacenamiento local del navegador,
 - El backend guarda el código como texto y **nunca lo ejecuta**. Se limita a 100 000 caracteres, y los guardados a 30 por minuto y persona, con el mismo limitador por proceso que el acceso (no compartido entre procesos).
 - El código guardado es dato personal: solo lo devuelve `GET /progress/exercises/{id}` a su autor, no aparece en el resumen y se borra en cascada con la cuenta o el ejercicio. No hay todavía flujo de eliminación de cuenta ni exportación de datos; ambos deberán incluir esta tabla.
 - Si un ejercicio deja de ser visible, su progreso se conserva pero no se expone hasta que vuelva a serlo.
+
+## Progreso en la interfaz (PR-009b)
+
+- Las peticiones de progreso usan `credentials: "include"` para enviar la cookie de sesión; la de ejercicios sigue con `credentials: "omit"`. Las respuestas se validan antes de usarse y los mensajes de error de la API no se muestran tal cual, salvo el texto del límite de guardados.
+- El código guardado se muestra en el editor como texto y no se ejecuta hasta que la persona pulsa **Comprobar**. Antes de reemplazar un borrador con cambios propios se pide confirmación.
+- La página sigue funcionando sin sesión y sin API de progreso; solo deja de guardar.
